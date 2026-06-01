@@ -98,7 +98,7 @@ export function SimScanner() {
         }
       } catch {}
     }
-  }, [scanning, validateScanned])
+  }, [scanning])
 
   const validateScanned = useCallback(async (value: string) => {
     setError(null)
