@@ -22,13 +22,12 @@ interface Props {
 
 export function AppShell({ title, children, onSignOut }: Props) {
   const [collapsed, setCollapsed] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
-  const isExpanded = !collapsed || isHovered
+  const isExpanded = !collapsed
 
   // Load sidebar state from localStorage on mount
   useEffect(() => {
@@ -81,9 +80,7 @@ export function AppShell({ title, children, onSignOut }: Props) {
 
         {/* Sidebar */}
         <aside
-          onMouseEnter={() => collapsed && setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          className={`fixed inset-y-0 left-0 top-12 z-50 border-r border-sidebar-border bg-sidebar transition-all duration-300 flex flex-col lg:static lg:top-auto lg:z-auto lg:h-screen ${
+          className={`fixed inset-y-0 left-0 top-12 z-50 border-r border-sidebar-border bg-sidebar transition-all duration-300 flex flex-col lg:sticky lg:top-0 lg:z-auto lg:h-screen ${
             isExpanded ? "w-64" : "w-20"
           } ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
         >
@@ -101,19 +98,14 @@ export function AppShell({ title, children, onSignOut }: Props) {
                 </div>
               </div>
             )}
-            {isExpanded && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setCollapsed(!collapsed)
-                  setIsHovered(false)
-                }}
-                className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
-              >
-                <ChevronLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setCollapsed(!collapsed)}
+              className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
+            >
+              <ChevronLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+            </Button>
           </div>
 
           {/* Navigation */}

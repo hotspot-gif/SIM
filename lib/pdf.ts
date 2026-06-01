@@ -7,11 +7,72 @@ const NAVY: [number, number, number] = [33, 38, 78]
 const BLUE: [number, number, number] = [36, 91, 193]
 const PEACH: [number, number, number] = [255, 247, 242]
 
-export const COLLECTION_NOTE =
-  "The credit will be applied to the originally submitted retailer's POS account within 30 days from the collection date. The credited amount will be provided as SIM Activation Balance."
+export type ReportLanguage = "en" | "it"
 
-export function buildReportDoc(detail: RetailerDetail): jsPDF {
+const TRANSLATIONS = {
+  en: {
+    reportTitle: "SIM Stock Collection Report",
+    subtitle: "Defective / Old Stock - Italy Field Operations",
+    generated: "Generated",
+    reportId: "Report ID",
+    retailerDetails: "Retailer Details",
+    retailerId: "Retailer ID",
+    territory: "Territory / Zone",
+    city: "City",
+    postCode: "Post Code",
+    email: "Email",
+    phone: "Phone",
+    collectedStock: "Collected SIM Stock",
+    qty: "QTY",
+    faceValue: "FACE VALUE",
+    disc: "DISC %",
+    reimbursement: "REIMBURSEMENT",
+    totalQty: "Total Qty Collected",
+    totalFaceValue: "Total Face Value",
+    totalDiscount: "Total Discount",
+    totalReimbursement: "Total Reimbursement Amount",
+    importantNote: "Important Note",
+    note: "The credit will be applied to the originally submitted retailer's POS account within 30 days from the collection date. The credited amount will be provided as SIM Activation Balance.",
+    emailSubject: "SIM Stock Collection Report",
+    emailGreeting: "Dear",
+    emailBody: "Please find attached the SIM stock collection report for the defective/old stock collected from your store.",
+    emailRegards: "Kind regards,",
+    emailTeam: "Field Operations Team",
+  },
+  it: {
+    reportTitle: "Rapporto Raccolta Stock SIM",
+    subtitle: "Stock Difettoso / Vecchio - Italy Field Operations",
+    generated: "Generato il",
+    reportId: "ID Rapporto",
+    retailerDetails: "Dettagli Rivenditore",
+    retailerId: "ID Rivenditore",
+    territory: "Territorio / Zona",
+    city: "Città",
+    postCode: "Codice Postale",
+    email: "Email",
+    phone: "Telefono",
+    collectedStock: "Stock SIM Raccolto",
+    qty: "QTA",
+    faceValue: "VALORE NOMINALE",
+    disc: "SCONTO %",
+    reimbursement: "RIMBORSO",
+    totalQty: "Qta Totale Raccolta",
+    totalFaceValue: "Valore Nominale Totale",
+    totalDiscount: "Sconto Totale",
+    totalReimbursement: "Importo Totale Rimborso",
+    importantNote: "Nota Importante",
+    note: "Il credito verrà applicato al conto POS del rivenditore originariamente presentato entro 30 giorni dalla data di raccolta. L'importo accreditato verrà fornito come Saldo di Attivazione SIM.",
+    emailSubject: "Rapporto Raccolta Stock SIM",
+    emailGreeting: "Gentile",
+    emailBody: "In allegato il rapporto di raccolta stock SIM per lo stock difettoso/vecchio raccolto presso il vostro punto vendita.",
+    emailRegards: "Cordiali saluti,",
+    emailTeam: "Team Field Operations",
+  },
+}
+
+export function buildReportDoc(detail: RetailerDetail, lang: ReportLanguage = "en"): jsPDF {
   const doc = new jsPDF({ unit: "pt", format: "a4" })
+  const t = TRANSLATIONS[lang]
   const pageWidth = doc.internal.pageSize.getWidth()
   const { retailer, batches, summary } = detail
   const generatedAt = new Date()
@@ -22,14 +83,16 @@ export function buildReportDoc(detail: RetailerDetail): jsPDF {
   doc.setTextColor(255, 255, 255)
   doc.setFont("helvetica", "bold")
   doc.setFontSize(18)
-  doc.text("SIM Stock Collection Report", 40, 40)
+  doc.text(t.reportTitle, 40, 40)
   doc.setFont("helvetica", "normal")
   doc.setFontSize(10)
   doc.setTextColor(255, 200, 178)
-  doc.text("Defective / Old Stock - Italy Field Operations", 40, 60)
+  doc.text(t.subtitle, 40, 60)
   doc.setTextColor(220, 224, 240)
-  doc.text(`Generated: ${generatedAt.toLocaleString("it-IT")}`, pageWidth - 40, 40, { align: "right" })
-  doc.text(`Report ID: ${retailer.retailerId}-${generatedAt.getTime().toString().slice(-6)}`, pageWidth - 40, 56, {
+  doc.text(`${t.generated}: ${generatedAt.toLocaleString(lang === "it" ? "it-IT" : "en-GB")}`, pageWidth - 40, 40, {
+    align: "right",
+  })
+  doc.text(`${t.reportId}: ${retailer.retailerId}-${generatedAt.getTime().toString().slice(-6)}`, pageWidth - 40, 56, {
     align: "right",
   })
 
@@ -38,17 +101,17 @@ export function buildReportDoc(detail: RetailerDetail): jsPDF {
   doc.setTextColor(...NAVY)
   doc.setFont("helvetica", "bold")
   doc.setFontSize(12)
-  doc.text("Retailer Details", 40, y)
+  doc.text(t.retailerDetails, 40, y)
   y += 8
   doc.setDrawColor(...PEACH)
 
   const info: [string, string][] = [
-    ["Retailer ID", retailer.retailerId],
-    ["Territory / Zone", retailer.territory || "-"],
-    ["City", retailer.city || "-"],
-    ["Post Code", retailer.postCode || "-"],
-    ["Email", retailer.email || "-"],
-    ["Phone", retailer.phone || "-"],
+    [t.retailerId, retailer.retailerId],
+    [t.territory, retailer.territory || "-"],
+    [t.city, retailer.city || "-"],
+    [t.postCode, retailer.postCode || "-"],
+    [t.email, retailer.email || "-"],
+    [t.phone, retailer.phone || "-"],
   ]
   autoTable(doc, {
     startY: y,
@@ -65,11 +128,11 @@ export function buildReportDoc(detail: RetailerDetail): jsPDF {
   doc.setFont("helvetica", "bold")
   doc.setFontSize(12)
   doc.setTextColor(...NAVY)
-  doc.text("Collected SIM Stock", 40, y)
+  doc.text(t.collectedStock, 40, y)
 
   autoTable(doc, {
     startY: y + 8,
-    head: [["#", "ICCID FROM", "ICCID TO", "QTY", "FACE VALUE", "DISC %", "REIMBURSEMENT"]],
+    head: [["#", "ICCID FROM", "ICCID TO", t.qty, t.faceValue, t.disc, t.reimbursement]],
     body: batches.map((b, i) => [
       String(i + 1),
       b.iccidFr || "-",
@@ -99,10 +162,10 @@ export function buildReportDoc(detail: RetailerDetail): jsPDF {
   autoTable(doc, {
     startY: y,
     body: [
-      ["Total Qty Collected", formatNumber(summary.totalQty)],
-      ["Total Face Value", formatCurrency(summary.totalFaceValue)],
-      ["Total Discount", `${formatNumber(summary.totalDiscount)} %`],
-      ["Total Reimbursement Amount", formatCurrency(summary.netReimbursement)],
+      [t.totalQty, formatNumber(summary.totalQty)],
+      [t.totalFaceValue, formatCurrency(summary.totalFaceValue)],
+      [t.totalDiscount, `${formatNumber(summary.totalDiscount)} %`],
+      [t.totalReimbursement, formatCurrency(summary.netReimbursement)],
     ],
     theme: "grid",
     styles: { fontSize: 10, cellPadding: 6, textColor: NAVY },
@@ -126,37 +189,38 @@ export function buildReportDoc(detail: RetailerDetail): jsPDF {
   doc.setFont("helvetica", "bold")
   doc.setFontSize(9)
   doc.setTextColor(...NAVY)
-  doc.text("Important Note", 52, y + 18)
+  doc.text(t.importantNote, 52, y + 18)
   doc.setFont("helvetica", "normal")
   doc.setFontSize(8.5)
-  const noteLines = doc.splitTextToSize(COLLECTION_NOTE, pageWidth - 104)
+  const noteLines = doc.splitTextToSize(t.note, pageWidth - 104)
   doc.text(noteLines, 52, y + 32)
 
   return doc
 }
 
-export function downloadReport(detail: RetailerDetail): string {
-  const doc = buildReportDoc(detail)
+export function downloadReport(detail: RetailerDetail, lang: ReportLanguage = "en"): string {
+  const doc = buildReportDoc(detail, lang)
   const fileName = `collection-report-${detail.retailer.retailerId}.pdf`
   doc.save(fileName)
   return fileName
 }
 
-export function buildMailtoLink(detail: RetailerDetail): string {
+export function buildMailtoLink(detail: RetailerDetail, lang: ReportLanguage = "en"): string {
   const { retailer, summary } = detail
-  const subject = `SIM Stock Collection Report - ${retailer.retailerId}`
+  const t = TRANSLATIONS[lang]
+  const subject = `${t.emailSubject} - ${retailer.retailerId}`
   const body = [
-    `Dear ${retailer.retailerId},`,
+    `${t.emailGreeting} ${retailer.retailerId},`,
     "",
-    "Please find attached the SIM stock collection report for the defective/old stock collected from your store.",
+    t.emailBody,
     "",
-    `Total Qty Collected: ${formatNumber(summary.totalQty)}`,
-    `Total Reimbursement Amount: ${formatCurrency(summary.netReimbursement)}`,
+    `${t.totalQty}: ${formatNumber(summary.totalQty)}`,
+    `${t.totalReimbursement}: ${formatCurrency(summary.netReimbursement)}`,
     "",
-    COLLECTION_NOTE,
+    t.note,
     "",
-    "Kind regards,",
-    "Field Operations Team",
+    t.emailRegards,
+    t.emailTeam,
   ].join("\n")
   return `mailto:${retailer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }

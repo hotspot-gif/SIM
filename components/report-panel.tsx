@@ -5,7 +5,7 @@ import { FileText, Download, Send, FileCheck, Pencil, Trash2 } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { RetailerDetail, SimBatch } from "@/lib/types"
-import { buildReportDoc, buildMailtoLink, COLLECTION_NOTE } from "@/lib/pdf"
+import { buildReportDoc, buildMailtoLink, type ReportLanguage } from "@/lib/pdf"
 import { calcReimbursement, formatCurrency, formatNumber } from "@/lib/calc"
 
 interface Props {
@@ -30,6 +30,7 @@ export function ReportPanel({ detail }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [editableBatches, setEditableBatches] = useState<SimBatch[]>([])
   const [reportFilter, setReportFilter] = useState<"all" | "zero" | "aboveZero">("all")
+  const [language, setLanguage] = useState<ReportLanguage>("en")
 
   useEffect(() => {
     setPreviewUrl(null)
@@ -86,21 +87,21 @@ export function ReportPanel({ detail }: Props) {
 
   function generate() {
     if (!adjustedDetail) return
-    const doc = buildReportDoc(adjustedDetail)
+    const doc = buildReportDoc(adjustedDetail, language)
     const url = doc.output("bloburl") as unknown as string
     setPreviewUrl(url.toString())
   }
 
   function download() {
     if (!adjustedDetail) return
-    const doc = buildReportDoc(adjustedDetail)
+    const doc = buildReportDoc(adjustedDetail, language)
     doc.save(`collection-report-${adjustedDetail.retailer.retailerId}.pdf`)
   }
 
   function send() {
     if (!adjustedDetail) return
     download()
-    window.location.href = buildMailtoLink(adjustedDetail)
+    window.location.href = buildMailtoLink(adjustedDetail, language)
   }
 
   if (!detail) {
@@ -148,7 +149,25 @@ export function ReportPanel({ detail }: Props) {
             onClick={() => setReportFilter("aboveZero")}
             className={`rounded-full border px-3 py-1 text-[11px] ${reportFilter === "aboveZero" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
           >
-            €0+ SIM only
+            Preload/Credit SIM
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 pb-3 border-t border-border/50 pt-3">
+          <span className="text-muted-foreground">Report Language:</span>
+          <button
+            type="button"
+            onClick={() => setLanguage("en")}
+            className={`rounded-full border px-3 py-1 text-[11px] ${language === "en" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => setLanguage("it")}
+            className={`rounded-full border px-3 py-1 text-[11px] ${language === "it" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
+          >
+            Italiano
           </button>
         </div>
 
