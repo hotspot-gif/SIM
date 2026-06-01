@@ -61,12 +61,12 @@ export default function SearchPage() {
 
   return (
     <AppShell title="Search SIM">
-      <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+      <div className="grid gap-4 lg:gap-6 lg:grid-cols-[1fr_360px] grid-cols-1">
+        <div className="lg:order-last space-y-4 lg:space-y-6">
+          <div className="rounded-2xl lg:rounded-3xl border border-border bg-card p-3 lg:p-4 shadow-sm">
             <div className="space-y-2">
               <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Retailer search</p>
-              <p className="text-sm text-muted-foreground">Lookup retailer SIM serials and collect stock details.</p>
+              <p className="text-xs lg:text-sm text-muted-foreground">Lookup retailer SIM serials and collect stock details.</p>
             </div>
             <div className="mt-4">
               <FilterPanel
@@ -81,18 +81,18 @@ export default function SearchPage() {
               />
             </div>
           </div>
-          <div className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+          <div className="rounded-2xl lg:rounded-3xl border border-border bg-card p-3 lg:p-4 shadow-sm">
             <RetailerSearch filters={filters} selectedId={selectedId} onSelect={setSelectedId} />
           </div>
         </div>
 
-        <div className="space-y-6">
-          <div className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+        <div className="space-y-4 lg:space-y-6">
+          <div className="rounded-2xl lg:rounded-3xl border border-border bg-card p-3 lg:p-4 shadow-sm">
             <IccidValidator onOpenRetailer={setSelectedId} />
           </div>
-          <div className="rounded-3xl border border-border bg-card p-4 shadow-sm">
+          <div className="rounded-2xl lg:rounded-3xl border border-border bg-card p-3 lg:p-4 shadow-sm">
             {isLoading && (
-              <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
+              <div className="flex items-center justify-center gap-2 py-12 lg:py-16 text-xs lg:text-sm text-muted-foreground">
                 Loading retailer SIM details...
               </div>
             )}

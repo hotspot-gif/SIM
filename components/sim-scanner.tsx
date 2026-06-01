@@ -118,40 +118,40 @@ export function SimScanner() {
   }
 
   return (
-    <div className="space-y-6 rounded-3xl border border-border bg-card p-6 shadow-sm">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-4 lg:space-y-6 rounded-2xl lg:rounded-3xl border border-border bg-card p-4 lg:p-6 shadow-sm">
+      <div className="flex flex-col gap-3">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">SIM Scan</p>
-          <h1 className="text-2xl font-semibold text-foreground">Scan ICCID with mobile camera</h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+          <h1 className="text-lg lg:text-2xl font-semibold text-foreground">Scan ICCID with mobile camera</h1>
+          <p className="mt-2 max-w-2xl text-xs lg:text-sm text-muted-foreground">
             Use the camera scanner if available, or enter the ICCID manually. Scanned values can be validated instantly.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setScanning((prev) => !prev)} className="bg-primary text-primary-foreground">
+          <Button onClick={() => setScanning((prev) => !prev)} className="bg-primary text-primary-foreground text-xs lg:text-sm">
             <Camera className="mr-2 size-4" />
             {scanning ? "Stop scan" : "Start scan"}
           </Button>
-          <Button variant="outline" onClick={() => validate(scanned)}>
+          <Button variant="outline" onClick={() => validate(scanned)} className="text-xs lg:text-sm">
             <RefreshCw className="mr-2 size-4" /> Validate
           </Button>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+        <div className="rounded-lg lg:rounded-xl border border-destructive/30 bg-destructive/10 p-3 lg:p-4 text-xs lg:text-sm text-destructive">
           {error}
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-secondary p-4">
+      <div className="grid gap-4 lg:gap-6 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-4 lg:order-last">
+          <div className="rounded-xl lg:rounded-2xl border border-border bg-secondary p-3 lg:p-4">
             <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Scanned ICCID</p>
-            <p className="mt-2 font-mono text-sm text-foreground break-all">{scanned || "No code scanned yet."}</p>
+            <p className="mt-2 font-mono text-xs lg:text-sm text-foreground break-all">{scanned || "No code scanned yet."}</p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-secondary p-4">
+          <div className="rounded-xl lg:rounded-2xl border border-border bg-secondary p-3 lg:p-4">
             <label className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground" htmlFor="manual-iccid">
               Manual ICCID input
             </label>
@@ -161,14 +161,14 @@ export function SimScanner() {
               onChange={(event) => setScanned(event.target.value)}
               placeholder="Enter full ICCID"
               inputMode="numeric"
-              className="mt-3 font-mono"
+              className="mt-3 font-mono text-xs lg:text-sm"
             />
           </div>
         </div>
 
         <div className="space-y-4">
           {scanning && (
-            <div className="overflow-hidden rounded-2xl border border-border bg-black/90">
+            <div className="overflow-hidden rounded-xl lg:rounded-2xl border border-border bg-black/90">
               <video
                 ref={videoRef}
                 className="aspect-video w-full object-cover"
@@ -180,41 +180,41 @@ export function SimScanner() {
             </div>
           )}
 
-          <div className="rounded-2xl border border-border bg-secondary p-4">
-            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <div className="rounded-xl lg:rounded-2xl border border-border bg-secondary p-3 lg:p-4">
+            <div className="flex items-center gap-2 text-xs lg:text-sm font-semibold text-foreground">
               <Barcode className="size-4 text-accent" /> Result
             </div>
-            <div className="mt-3 space-y-3 text-sm">
+            <div className="mt-3 space-y-3 text-xs lg:text-sm">
               {result ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 rounded-2xl bg-background px-3 py-2 text-sm">
-                    <CheckCircle className="size-4 text-success" />
+                  <div className="flex items-center gap-2 rounded-lg lg:rounded-2xl bg-background px-3 py-2 text-xs lg:text-sm">
+                    <CheckCircle className="size-3 lg:size-4 text-success" />
                     <span>{result.defective ? "Defective stock detected" : "Not defective"}</span>
                   </div>
                   {result.batch ? (
-                    <div className="grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                    <div className="grid gap-2 text-xs text-muted-foreground grid-cols-2">
                       <div>
-                        <p className="font-semibold text-foreground">Retailer</p>
-                        <p>{result.batch.retailerId}</p>
+                        <p className="font-semibold text-foreground text-xs">Retailer</p>
+                        <p className="text-xs">{result.batch.retailerId}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">City</p>
-                        <p>{result.batch.city || "Unknown"}</p>
+                        <p className="font-semibold text-foreground text-xs">City</p>
+                        <p className="text-xs">{result.batch.city || "Unknown"}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">Range</p>
-                        <p>{result.batch.iccidFr}-{result.batch.iccidTo}</p>
+                        <p className="font-semibold text-foreground text-xs">Range</p>
+                        <p className="text-xs">{result.batch.iccidFr}-{result.batch.iccidTo}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">Qty</p>
-                        <p>{result.batch.qty}</p>
+                        <p className="font-semibold text-foreground text-xs">Qty</p>
+                        <p className="text-xs">{result.batch.qty}</p>
                       </div>
                     </div>
                   ) : null}
                 </div>
               ) : (
-                <div className="flex items-center gap-2 rounded-2xl border border-dashed border-border px-3 py-6 text-sm text-muted-foreground">
-                  <XCircle className="size-4" />
+                <div className="flex items-center gap-2 rounded-lg lg:rounded-2xl border border-dashed border-border px-3 py-4 lg:py-6 text-xs lg:text-sm text-muted-foreground">
+                  <XCircle className="size-3 lg:size-4 flex-shrink-0" />
                   <span>No ICCID validated yet.</span>
                 </div>
               )}

@@ -2,8 +2,8 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
-import { ChevronLeft, LogOut, Home, Layers, Search, Barcode, PackagePlus } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ChevronLeft, LogOut, Home, Search, Barcode, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { clearStoredUser } from "@/lib/auth"
@@ -22,8 +22,26 @@ interface Props {
 
 export function AppShell({ title, children, onSignOut }: Props) {
   const [collapsed, setCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    setMounted(true)
+    const saved = localStorage.getItem("sidebar-collapsed")
+    if (saved !== null) {
+      setCollapsed(JSON.parse(saved))
+    }
+  }, [])
+
+  // Persist sidebar state to localStorage
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("sidebar-collapsed", JSON.stringify(collapsed))
+    }
+  }, [collapsed, mounted])
 
   function signOut() {
     if (onSignOut) {
@@ -36,15 +54,36 @@ export function AppShell({ title, children, onSignOut }: Props) {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen flex-col lg:flex-row">
+        {/* Mobile header with menu button */}
+        <div className="flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 lg:hidden">
+          <h2 className="text-sm font-bold text-sidebar-foreground">Field Ops</h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-sidebar-foreground hover:bg-sidebar-accent"
+          >
+            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </Button>
+        </div>
+
+        {/* Mobile sidebar overlay */}
+        {mobileOpen && (
+          <div
+            className="fixed inset-0 top-12 z-40 bg-black/50 lg:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+
         {/* Sidebar */}
         <aside
-          className={`border-r border-sidebar-border bg-sidebar transition-all duration-300 flex flex-col ${
+          className={`fixed inset-y-0 left-0 top-12 z-50 border-r border-sidebar-border bg-sidebar transition-all duration-300 flex flex-col lg:static lg:top-auto lg:z-auto lg:h-screen ${
             collapsed ? "w-20" : "w-64"
-          }`}
+          } ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
         >
           {/* Header */}
-          <div className="border-b border-sidebar-border p-4 flex items-center justify-between">
+          <div className="border-b border-sidebar-border p-4 flex items-center justify-between hidden lg:flex">
             {!collapsed && (
               <div>
                 <p className="text-xs uppercase tracking-widest text-sidebar-foreground/70">SIM Dashboard</p>
@@ -62,7 +101,7 @@ export function AppShell({ title, children, onSignOut }: Props) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 space-y-2 p-4">
+          <nav className="flex-1 space-y-1 p-3 lg:space-y-2 lg:p-4">
             {navItems.map((item) => {
               const Icon = item.icon
               const active = pathname === item.href
@@ -70,11 +109,12 @@ export function AppShell({ title, children, onSignOut }: Props) {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 lg:py-2.5 text-sm font-medium transition ${
                     active
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  } ${collapsed ? "justify-center" : ""}`}
+                  } ${collapsed ? "justify-center lg:justify-center" : ""}`}
                   title={collapsed ? item.label : ""}
                 >
                   <Icon className="size-4 flex-shrink-0" />
@@ -85,12 +125,12 @@ export function AppShell({ title, children, onSignOut }: Props) {
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-sidebar-border p-4">
+          <div className="border-t border-sidebar-border p-3 lg:p-4">
             <Button
               variant="outline"
               size="sm"
               onClick={signOut}
-              className={`w-full justify-center border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${collapsed ? "px-0" : ""}`}
+              className={`w-full justify-center border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm ${collapsed ? "px-0" : ""}`}
             >
               <LogOut className="size-4 flex-shrink-0" />
               {!collapsed && <span className="ml-2">Sign out</span>}
@@ -100,10 +140,10 @@ export function AppShell({ title, children, onSignOut }: Props) {
 
         {/* Main content */}
         <div className="flex flex-1 flex-col min-w-0">
-          <div className="border-b border-border bg-card px-6 py-4">
-            <h1 className="text-lg font-semibold text-foreground">{title}</h1>
+          <div className="border-b border-border bg-card px-4 py-3 lg:px-6 lg:py-4">
+            <h1 className="text-base lg:text-lg font-semibold text-foreground">{title}</h1>
           </div>
-          <main className="flex-1 min-w-0 p-6">{children}</main>
+          <main className="flex-1 min-w-0 p-4 lg:p-6 overflow-y-auto">{children}</main>
         </div>
       </div>
     </div>
