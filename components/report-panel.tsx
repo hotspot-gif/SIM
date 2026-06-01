@@ -1,21 +1,40 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { FileText, Download, Send, FileCheck } from "lucide-react"
+import { useEffect, useMemo, useState } from "react"
+import { FileText, Download, Send, FileCheck, Pencil } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import type { RetailerDetail } from "@/lib/types"
+import { Input } from "@/components/ui/input"
+import type { RetailerDetail, SimBatch } from "@/lib/types"
 import { buildReportDoc, buildMailtoLink, COLLECTION_NOTE } from "@/lib/pdf"
-import { formatCurrency, formatNumber } from "@/lib/calc"
+import { calcReimbursement, formatCurrency, formatNumber } from "@/lib/calc"
 
 interface Props {
   detail: RetailerDetail | null
 }
 
+function buildAdjustedSummary(batches: SimBatch[]) {
+  return batches.reduce(
+    (acc, batch) => {
+      acc.totalQty += batch.qty
+      acc.totalFaceValue += batch.faceValue * batch.qty
+      acc.totalDiscount += batch.discount
+      acc.netReimbursement += batch.reimbursement
+      acc.batchCount += 1
+      return acc
+    },
+    { totalQty: 0, totalFaceValue: 0, totalDiscount: 0, netReimbursement: 0, batchCount: 0 },
+  )
+}
+
 export function ReportPanel({ detail }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [editableBatches, setEditableBatches] = useState<SimBatch[]>([])
 
   useEffect(() => {
     setPreviewUrl(null)
+    if (detail) {
+      setEditableBatches(detail.batches.map((batch) => ({ ...batch })))
+    }
     return () => {
       setPreviewUrl((prev) => {
         if (prev) URL.revokeObjectURL(prev)
@@ -24,23 +43,45 @@ export function ReportPanel({ detail }: Props) {
     }
   }, [detail?.retailer.retailerId])
 
+  const adjustedDetail = useMemo(() => {
+    if (!detail) return null
+    const summary = buildAdjustedSummary(editableBatches)
+    return { ...detail, batches: editableBatches, summary }
+  }, [detail, editableBatches])
+
+  function updateBatchValue(index: number, field: keyof Pick<SimBatch, "iccidFr" | "iccidTo" | "qty">, value: string) {
+    setEditableBatches((current) => {
+      const next = [...current]
+      const batch = { ...next[index] }
+      if (field === "qty") {
+        const qty = Number(value.replace(/[^0-9]/g, ""))
+        batch.qty = Number.isFinite(qty) ? qty : 0
+        batch.reimbursement = calcReimbursement(batch.faceValue, batch.discount, batch.qty)
+      } else {
+        batch[field] = value
+      }
+      next[index] = batch
+      return next
+    })
+  }
+
   function generate() {
-    if (!detail) return
-    const doc = buildReportDoc(detail)
+    if (!adjustedDetail) return
+    const doc = buildReportDoc(adjustedDetail)
     const url = doc.output("bloburl") as unknown as string
     setPreviewUrl(url.toString())
   }
 
   function download() {
-    if (!detail) return
-    const doc = buildReportDoc(detail)
-    doc.save(`collection-report-${detail.retailer.retailerId}.pdf`)
+    if (!adjustedDetail) return
+    const doc = buildReportDoc(adjustedDetail)
+    doc.save(`collection-report-${adjustedDetail.retailer.retailerId}.pdf`)
   }
 
   function send() {
-    if (!detail) return
+    if (!adjustedDetail) return
     download()
-    window.location.href = buildMailtoLink(detail)
+    window.location.href = buildMailtoLink(adjustedDetail)
   }
 
   if (!detail) {
@@ -73,11 +114,52 @@ export function ReportPanel({ detail }: Props) {
         </div>
         <div className="flex justify-between py-0.5">
           <span className="text-muted-foreground">Qty to collect</span>
-          <span className="font-semibold text-foreground">{formatNumber(detail.summary.totalQty)}</span>
+          <span className="font-semibold text-foreground">{formatNumber(adjustedDetail.summary.totalQty)}</span>
         </div>
         <div className="flex justify-between py-0.5">
           <span className="text-muted-foreground">Reimbursement</span>
-          <span className="font-semibold text-accent">{formatCurrency(detail.summary.netReimbursement)}</span>
+          <span className="font-semibold text-accent">{formatCurrency(adjustedDetail.summary.netReimbursement)}</span>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-secondary p-3">
+        <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+          <span className="font-medium text-foreground">Adjust batch details</span>
+          <span className="inline-flex items-center gap-1 text-success">
+            <Pencil className="size-4" /> Applied to PDF export
+          </span>
+        </div>
+        <div className="mt-4 grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-[1fr_1fr_100px_120px]">
+          <span>ICCID FROM</span>
+          <span>ICCID TO</span>
+          <span>QTY</span>
+          <span>Reimbursement</span>
+        </div>
+        <div className="mt-2 space-y-2">
+          {editableBatches.map((batch, index) => (
+            <div key={`${batch.retailerId}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_1fr_100px_120px]">
+              <Input
+                value={batch.iccidFr}
+                onChange={(event) => updateBatchValue(index, "iccidFr", event.target.value)}
+                className="border-sidebar-border bg-background text-foreground"
+              />
+              <Input
+                value={batch.iccidTo}
+                onChange={(event) => updateBatchValue(index, "iccidTo", event.target.value)}
+                className="border-sidebar-border bg-background text-foreground"
+              />
+              <Input
+                type="number"
+                value={String(batch.qty)}
+                min={0}
+                onChange={(event) => updateBatchValue(index, "qty", event.target.value)}
+                className="border-sidebar-border bg-background text-foreground"
+              />
+              <div className="flex items-center rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground">
+                {formatCurrency(batch.reimbursement)}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

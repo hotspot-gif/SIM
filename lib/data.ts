@@ -9,6 +9,7 @@ import type {
   StockSummary,
   FilterOptions,
   IccidResult,
+  DashboardOverview,
 } from "./types"
 
 interface DataStore {
@@ -153,6 +154,53 @@ export interface RetailerQuery {
   zone?: string
   city?: string
   postCode?: string
+}
+
+export interface DashboardOverviewQuery extends RetailerQuery {}
+
+export function getOverview(query: DashboardOverviewQuery): DashboardOverview {
+  const { batches, retailers } = load()
+  const filteredRetailers = Array.from(retailers.values()).filter((r) => {
+    if (query.zone && r.territory !== query.zone) return false
+    if (query.branch && branchFromTerritory(r.territory) !== query.branch) return false
+    if (query.city && r.city !== query.city) return false
+    if (query.postCode && r.postCode !== query.postCode) return false
+    return true
+  })
+
+  const filteredBatches = batches.filter((b) => {
+    if (query.zone && b.territory !== query.zone) return false
+    if (query.branch && branchFromTerritory(b.territory) !== query.branch) return false
+    if (query.city && b.city !== query.city) return false
+    if (query.postCode && b.postCode !== query.postCode) return false
+    return true
+  })
+
+  const cities = new Set<string>()
+  const branches = new Set<string>()
+  const zones = new Set<string>()
+
+  let totalQty = 0
+  let totalFaceValue = 0
+
+  for (const batch of filteredBatches) {
+    if (batch.city) cities.add(batch.city)
+    if (batch.territory) zones.add(batch.territory)
+    branches.add(branchFromTerritory(batch.territory))
+    totalQty += batch.qty
+    totalFaceValue += batch.faceValue * batch.qty
+  }
+
+  return {
+    retailers: filteredRetailers.length,
+    pendingRetailers: filteredRetailers.filter((r) => r.totalQty > 0).length,
+    cities: cities.size,
+    branches: branches.size,
+    zones: zones.size,
+    totalQty,
+    totalFaceValue: Math.round(totalFaceValue * 100) / 100,
+    totalBatches: filteredBatches.length,
+  }
 }
 
 export function searchRetailers(query: RetailerQuery, limit = 50): RetailerSummary[] {

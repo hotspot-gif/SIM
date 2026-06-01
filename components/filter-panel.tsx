@@ -24,12 +24,15 @@ interface Props {
   options?: FilterOptions
   filters: Filters
   onChange: (filters: Filters) => void
+  allowedBranches?: string[]
+  allowedZones?: string[]
 }
 
 const ALL = "__all__"
 
-export function FilterPanel({ options, filters, onChange }: Props) {
-  const zones = options?.zones ?? []
+export function FilterPanel({ options, filters, onChange, allowedBranches, allowedZones }: Props) {
+  const branches = allowedBranches && allowedBranches.length > 0 ? allowedBranches : options?.branches ?? []
+  const zones = allowedZones && allowedZones.length > 0 ? allowedZones : options?.zones ?? []
   const visibleZones = filters.branch
     ? zones.filter((z) => z.startsWith(filters.branch))
     : zones
@@ -63,15 +66,15 @@ export function FilterPanel({ options, filters, onChange }: Props) {
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs text-sidebar-foreground/70">Branch</Label>
         <Select
-          value={filters.branch || ALL}
+          value={filters.branch || (branches.length === 1 ? branches[0] : ALL)}
           onValueChange={(v) => onChange({ ...filters, branch: v === ALL ? "" : v, zone: "" })}
         >
           <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
             <SelectValue placeholder="All branches" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All branches</SelectItem>
-            {options?.branches.map((b) => (
+            {branches.length > 1 && <SelectItem value={ALL}>All branches</SelectItem>}
+            {branches.map((b) => (
               <SelectItem key={b} value={b}>
                 {b}
               </SelectItem>
@@ -82,12 +85,15 @@ export function FilterPanel({ options, filters, onChange }: Props) {
 
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs text-sidebar-foreground/70">Zone</Label>
-        <Select value={filters.zone || ALL} onValueChange={(v) => set("zone", v === ALL ? "" : v)}>
+        <Select
+          value={filters.zone || (visibleZones.length === 1 ? visibleZones[0] : ALL)}
+          onValueChange={(v) => set("zone", v === ALL ? "" : v)}
+        >
           <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
             <SelectValue placeholder="All zones" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ALL}>All zones</SelectItem>
+            {visibleZones.length > 1 && <SelectItem value={ALL}>All zones</SelectItem>}
             {visibleZones.map((z) => (
               <SelectItem key={z} value={z}>
                 {z}

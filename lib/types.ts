@@ -67,6 +67,17 @@ export interface FilterOptions {
   cities: string[]
 }
 
+export interface DashboardOverview {
+  retailers: number
+  pendingRetailers: number
+  cities: number
+  branches: number
+  zones: number
+  totalQty: number
+  totalFaceValue: number
+  totalBatches: number
+}
+
 export interface IccidResult {
   iccid: string
   defective: boolean
