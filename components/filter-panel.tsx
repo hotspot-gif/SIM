@@ -59,7 +59,7 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-xs text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="h-7 px-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
             onClick={() => onChange({ branch: "", zone: "", city: "", postCode: "" })}
           >
             <X className="mr-1 size-3" />
@@ -69,12 +69,12 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-sidebar-foreground/70">Branch</Label>
+        <Label className="text-xs font-medium text-sidebar-foreground">Branch</Label>
         <Select
           value={filters.branch || (branches.length === 1 ? branches[0] : ALL)}
           onValueChange={(v) => onChange({ ...filters, branch: v === ALL ? "" : v, zone: "" })}
         >
-          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
+          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60">
             <SelectValue placeholder="All branches" />
           </SelectTrigger>
           <SelectContent>
@@ -89,12 +89,12 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-sidebar-foreground/70">Zone</Label>
+        <Label className="text-xs font-medium text-sidebar-foreground">Zone</Label>
         <Select
           value={filters.zone || (visibleZones.length === 1 ? visibleZones[0] : ALL)}
           onValueChange={(v) => set("zone", v === ALL ? "" : v)}
         >
-          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
+          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60">
             <SelectValue placeholder="All zones" />
           </SelectTrigger>
           <SelectContent>
@@ -109,9 +109,9 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-sidebar-foreground/70">City</Label>
+        <Label className="text-xs font-medium text-sidebar-foreground">City</Label>
         <Select value={filters.city || ALL} onValueChange={(v) => set("city", v === ALL ? "" : v)}>
-          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground">
+          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60">
             <SelectValue placeholder="All cities" />
           </SelectTrigger>
           <SelectContent className="max-h-72">
@@ -126,13 +126,13 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-sidebar-foreground/70">Post Code</Label>
+        <Label className="text-xs font-medium text-sidebar-foreground">Post Code</Label>
         <Input
           value={filters.postCode}
           onChange={(e) => set("postCode", e.target.value)}
           placeholder="e.g. 71034"
           inputMode="numeric"
-          className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/40"
+          className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60"
         />
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { FileText, Download, Send, FileCheck, Pencil } from "lucide-react"
+import { FileText, Download, Send, FileCheck, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { RetailerDetail, SimBatch } from "@/lib/types"
@@ -78,6 +78,10 @@ export function ReportPanel({ detail }: Props) {
       next[index] = batch
       return next
     })
+  }
+
+  function deleteBatch(indexToDelete: number) {
+    setEditableBatches((current) => current.filter((_, idx) => idx !== indexToDelete))
   }
 
   function generate() {
@@ -169,16 +173,17 @@ export function ReportPanel({ detail }: Props) {
             <Pencil className="size-4" /> Applied to PDF export
           </span>
         </div>
-        <div className="mt-4 grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-[1fr_1fr_100px_120px]">
+        <div className="mt-4 grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-[1fr_1fr_100px_120px_40px]">
           <span>ICCID FROM</span>
           <span>ICCID TO</span>
           <span>QTY</span>
           <span>Reimbursement</span>
+          <span></span>
         </div>
         <div className="mt-2 space-y-2">
           {filteredBatchesWithIndex.length > 0 ? (
             filteredBatchesWithIndex.map(({ batch, index }) => (
-              <div key={`${batch.retailerId}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_1fr_100px_120px]">
+              <div key={`${batch.retailerId}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_1fr_100px_120px_40px] items-center">
                 <Input
                   value={batch.iccidFr}
                   onChange={(event) => updateBatchValue(index, "iccidFr", event.target.value)}
@@ -199,6 +204,15 @@ export function ReportPanel({ detail }: Props) {
                 <div className="flex items-center rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground">
                   {formatCurrency(batch.reimbursement)}
                 </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => deleteBatch(index)}
+                  className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                  title="Delete this batch"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
               </div>
             ))
           ) : (

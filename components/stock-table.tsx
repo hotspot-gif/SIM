@@ -15,7 +15,7 @@ export function StockTable({ batches }: Props) {
             <tr className="bg-primary text-primary-foreground">
               <th className="px-3 py-2.5 text-left font-semibold">ICCID From</th>
               <th className="px-3 py-2.5 text-left font-semibold">ICCID To</th>
-              <th className="px-3 py-2.5 text-left font-semibold">Vendor</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Auth Date</th>
               <th className="px-3 py-2.5 text-left font-semibold">Profile</th>
               <th className="px-3 py-2.5 text-left font-semibold">Status</th>
               <th className="px-3 py-2.5 text-right font-semibold">Qty</th>
@@ -32,7 +32,7 @@ export function StockTable({ batches }: Props) {
               >
                 <td className="px-3 py-2.5 font-mono text-xs text-foreground">{b.iccidFr || "-"}</td>
                 <td className="px-3 py-2.5 font-mono text-xs text-foreground">{b.iccidTo || "-"}</td>
-                <td className="px-3 py-2.5 text-sm text-foreground">{b.vendor || "-"}</td>
+                <td className="px-3 py-2.5 text-sm text-foreground">{b.authDate ? new Date(b.authDate).toLocaleDateString('en-GB') : "-"}</td>
                 <td className="px-3 py-2.5 text-sm text-foreground">
                   <span className="flex items-center gap-1.5">
                     <Badge
