@@ -25,18 +25,29 @@ export function SimScanner() {
       }
 
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "environment",
+            focusMode: "continuous" as any,
+            torch: false,
+          },
+        })
         streamRef.current = stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream
+          videoRef.current.setAttribute("autoplay", "true")
+          videoRef.current.setAttribute("playsinline", "true")
           await videoRef.current.play()
         }
 
         readerRef.current = new BrowserMultiFormatReader()
         readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
           if (result) {
-            setScanned(result.getText())
+            const scannedValue = result.getText()
+            setScanned(scannedValue)
             setScanning(false)
+            // Auto-validate the scanned ICCID
+            validateScanned(scannedValue)
           }
           if (error) {
             // Ignore all scanning errors silently - this is normal during continuous scanning
@@ -65,17 +76,21 @@ export function SimScanner() {
     }
   }, [scanning])
 
-  async function validate(value: string) {
+  async function validateScanned(value: string) {
     setError(null)
     setResult(null)
-    setScanned(value)
     if (!value.trim()) return
     try {
       const data = await fetcher(`/api/iccid?value=${encodeURIComponent(value.trim())}`)
       setResult(data)
     } catch {
-      setError("Unable to validate ICCID. Try again.")
+      setError("Invalid or not found ICCID. Please try another one.")
     }
+  }
+
+  async function validate(value: string) {
+    setScanned(value)
+    await validateScanned(value)
   }
 
   return (
@@ -130,7 +145,14 @@ export function SimScanner() {
         <div className="space-y-4">
           {scanning && (
             <div className="overflow-hidden rounded-2xl border border-border bg-black/90">
-              <video ref={videoRef} className="aspect-video w-full object-cover" muted playsInline />
+              <video
+                ref={videoRef}
+                className="aspect-video w-full object-cover"
+                autoplay
+                playsInline
+                muted
+                disablePictureInPicture
+              />
             </div>
           )}
 
