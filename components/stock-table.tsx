@@ -59,7 +59,7 @@ export function StockTable({ batches }: Props) {
             ))}
             {batches.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={9} className="px-3 py-8 text-center text-sm text-muted-foreground">
                   No SIM stock found for this retailer.
                 </td>
               </tr>

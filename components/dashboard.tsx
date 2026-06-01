@@ -34,11 +34,11 @@ export function Dashboard({ user, onSignOut }: Props) {
   const [showSidebars, setShowSidebars] = useState(true)
 
   const { data: options } = useSWR<FilterOptions>("/api/filters", fetcher)
-  const { data: detail, isLoading: detailLoading } = useSWR<RetailerDetail>(
+  const { data: detail, isLoading: detailLoading, error: detailError } = useSWR<RetailerDetail>(
     selectedId ? `/api/retailer?id=${encodeURIComponent(selectedId)}` : null,
     fetcher,
   )
-  const { data: overview } = useSWR<DashboardOverview>(
+  const { data: overview, error: overviewError } = useSWR<DashboardOverview>(
     `/api/summary?${new URLSearchParams({
       branch: filters.branch || "",
       zone: filters.zone || "",
@@ -119,6 +119,20 @@ export function Dashboard({ user, onSignOut }: Props) {
                 <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-8 text-sm text-muted-foreground">
                   <Loader2 className="size-4 animate-spin" />
                   Loading retailer stock...
+                </div>
+              )}
+
+              {detailError && (
+                <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-8 text-center">
+                  <p className="text-sm font-medium text-destructive">Error loading retailer: {detailError.message}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={() => setSelectedId(null)}
+                  >
+                    Go back
+                  </Button>
                 </div>
               )}
 

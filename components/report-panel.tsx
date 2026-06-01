@@ -129,7 +129,7 @@ export function ReportPanel({ detail }: Props) {
 
       <div className="rounded-lg bg-secondary/60 p-3 text-xs">
         <div className="flex flex-wrap items-center gap-2 pb-3">
-          <span className="text-muted-foreground">Include in report:</span>
+          <span className="font-medium text-foreground">Include in report:</span>
           <button
             type="button"
             onClick={() => setReportFilter("all")}
@@ -154,7 +154,7 @@ export function ReportPanel({ detail }: Props) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 pb-3 border-t border-border/50 pt-3">
-          <span className="text-muted-foreground">Report Language:</span>
+          <span className="font-medium text-foreground">Report Language:</span>
           <button
             type="button"
             onClick={() => setLanguage("en")}

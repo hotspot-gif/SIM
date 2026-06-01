@@ -27,7 +27,7 @@ export function AppShell({ title, children, onSignOut }: Props) {
   const pathname = usePathname()
   const router = useRouter()
 
-  const isExpanded = !collapsed
+  const isExpanded = mounted ? !collapsed : true
 
   // Load sidebar state from localStorage on mount
   useEffect(() => {

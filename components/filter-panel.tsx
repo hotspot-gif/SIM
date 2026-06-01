@@ -52,7 +52,7 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="flex items-center gap-2 text-sm font-semibold text-sidebar-foreground">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <SlidersHorizontal className="size-4" />
           Filters
         </h2>
@@ -60,7 +60,7 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 px-2 text-xs text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
+            className="h-7 px-2 text-xs text-muted-foreground hover:bg-secondary hover:text-foreground"
             onClick={() => onChange({ branch: "", zone: "", city: "", postCode: "" })}
           >
             <X className="mr-1 size-3" />
@@ -70,14 +70,14 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs font-medium text-sidebar-foreground">Branch</Label>
+        <Label className="text-xs font-medium text-foreground">Branch</Label>
         <Select
           value={filters.branch || (branches.length === 1 ? branches[0] : ALL)}
           onValueChange={(v) => onChange({ ...filters, branch: v === ALL ? "" : v, zone: "" })}
         >
           <SelectTrigger className={cn(
-            "border-sidebar-border bg-sidebar-accent text-sidebar-foreground",
-            (!filters.branch || filters.branch === ALL) && "text-sidebar-foreground/70"
+            "border-border bg-card text-foreground",
+            (!filters.branch || filters.branch === ALL) && "text-muted-foreground"
           )}>
             <SelectValue placeholder="All branches" />
           </SelectTrigger>
@@ -93,14 +93,14 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs font-medium text-sidebar-foreground">Zone</Label>
+        <Label className="text-xs font-medium text-foreground">Zone</Label>
         <Select
           value={filters.zone || (visibleZones.length === 1 ? visibleZones[0] : ALL)}
           onValueChange={(v) => set("zone", v === ALL ? "" : v)}
         >
           <SelectTrigger className={cn(
-            "border-sidebar-border bg-sidebar-accent text-sidebar-foreground",
-            (!filters.zone || filters.zone === ALL) && "text-sidebar-foreground/70"
+            "border-border bg-card text-foreground",
+            (!filters.zone || filters.zone === ALL) && "text-muted-foreground"
           )}>
             <SelectValue placeholder="All zones" />
           </SelectTrigger>
@@ -116,11 +116,11 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs font-medium text-sidebar-foreground">City</Label>
+        <Label className="text-xs font-medium text-foreground">City</Label>
         <Select value={filters.city || ALL} onValueChange={(v) => set("city", v === ALL ? "" : v)}>
           <SelectTrigger className={cn(
-            "border-sidebar-border bg-sidebar-accent text-sidebar-foreground",
-            (!filters.city || filters.city === ALL) && "text-sidebar-foreground/70"
+            "border-border bg-card text-foreground",
+            (!filters.city || filters.city === ALL) && "text-muted-foreground"
           )}>
             <SelectValue placeholder="All cities" />
           </SelectTrigger>
@@ -136,13 +136,13 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs font-medium text-sidebar-foreground">Post Code</Label>
+        <Label className="text-xs font-medium text-foreground">Post Code</Label>
         <Input
           value={filters.postCode}
           onChange={(e) => set("postCode", e.target.value)}
           placeholder="e.g. 71034"
           inputMode="numeric"
-          className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/70"
+          className="border-border bg-card text-foreground placeholder:text-muted-foreground"
         />
       </div>
     </div>
