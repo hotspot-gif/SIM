@@ -193,46 +193,65 @@ export function ReportPanel({ detail }: Props) {
             <Pencil className="size-4" /> Applied to PDF export
           </span>
         </div>
-        <div className="mt-4 grid gap-2 text-[11px] text-muted-foreground sm:grid-cols-[1fr_1fr_100px_120px_40px]">
+        <div className="mt-4 hidden grid-cols-[1fr_1fr_80px_100px_40px] gap-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground sm:grid">
           <span>ICCID FROM</span>
           <span>ICCID TO</span>
-          <span>QTY</span>
-          <span>Reimbursement</span>
+          <span className="text-center">QTY</span>
+          <span className="text-right">Reimb.</span>
           <span></span>
         </div>
-        <div className="mt-2 space-y-2">
+        <div className="mt-2 space-y-3 sm:space-y-2">
           {filteredBatchesWithIndex.length > 0 ? (
             filteredBatchesWithIndex.map(({ batch, index }) => (
-              <div key={`${batch.retailerId}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_1fr_100px_120px_40px] items-center">
-                <Input
-                  value={batch.iccidFr}
-                  onChange={(event) => updateBatchValue(index, "iccidFr", event.target.value)}
-                  className="border-sidebar-border bg-background text-foreground"
-                />
-                <Input
-                  value={batch.iccidTo}
-                  onChange={(event) => updateBatchValue(index, "iccidTo", event.target.value)}
-                  className="border-sidebar-border bg-background text-foreground"
-                />
-                <Input
-                  type="number"
-                  value={String(batch.qty)}
-                  min={0}
-                  onChange={(event) => updateBatchValue(index, "qty", event.target.value)}
-                  className="border-sidebar-border bg-background text-foreground"
-                />
-                <div className="flex items-center rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground">
-                  {formatCurrency(batch.reimbursement)}
+              <div key={`${batch.retailerId}-${index}`} className="flex flex-col gap-3 rounded-lg border border-border/50 bg-background/50 p-3 sm:grid sm:grid-cols-[1fr_1fr_80px_100px_40px] sm:items-center sm:gap-2 sm:border-0 sm:bg-transparent sm:p-0">
+                <div className="grid grid-cols-2 gap-2 sm:contents">
+                  <div className="flex flex-col gap-1 sm:contents">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground sm:hidden">ICCID From</span>
+                    <Input
+                      value={batch.iccidFr}
+                      onChange={(event) => updateBatchValue(index, "iccidFr", event.target.value)}
+                      className="h-9 border-sidebar-border bg-background text-xs text-foreground sm:h-8"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 sm:contents">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground sm:hidden">ICCID To</span>
+                    <Input
+                      value={batch.iccidTo}
+                      onChange={(event) => updateBatchValue(index, "iccidTo", event.target.value)}
+                      className="h-9 border-sidebar-border bg-background text-xs text-foreground sm:h-8"
+                    />
+                  </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => deleteBatch(index)}
-                  className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                  title="Delete this batch"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
+
+                <div className="grid grid-cols-3 items-end gap-2 sm:contents">
+                  <div className="flex flex-col gap-1 sm:contents">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground sm:hidden">QTY</span>
+                    <Input
+                      type="number"
+                      value={String(batch.qty)}
+                      min={0}
+                      onChange={(event) => updateBatchValue(index, "qty", event.target.value)}
+                      className="h-9 border-sidebar-border bg-background text-center text-xs text-foreground sm:h-8"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1 sm:contents">
+                    <span className="text-[10px] font-bold uppercase text-muted-foreground sm:hidden">Reimbursement</span>
+                    <div className="flex h-9 items-center justify-end rounded-md border border-border bg-card px-2 text-xs font-bold text-accent sm:h-8 sm:border-0 sm:bg-transparent sm:px-0 sm:text-right">
+                      {formatCurrency(batch.reimbursement)}
+                    </div>
+                  </div>
+                  <div className="flex justify-end sm:contents">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => deleteBatch(index)}
+                      className="h-9 w-9 text-destructive hover:bg-destructive/10 sm:h-8 sm:w-8"
+                      title="Delete this batch"
+                    >
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             ))
           ) : (

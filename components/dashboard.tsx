@@ -169,6 +169,11 @@ export function Dashboard({ user, onSignOut }: Props) {
 
                   <SummaryCards summary={detail.summary} />
                   <StockTable batches={detail.batches} />
+
+                  {/* Mobile Report Panel */}
+                  <div className="xl:hidden">
+                    <ReportPanel key={`mobile-${selectedId}`} detail={detail} />
+                  </div>
                 </>
               )}
             </section>
@@ -177,7 +182,7 @@ export function Dashboard({ user, onSignOut }: Props) {
 
         {showSidebars && (
           <aside className="hidden xl:block xl:sticky xl:top-[20px]">
-            <ReportPanel key={selectedId || "none"} detail={detail ?? null} />
+            <ReportPanel key={`desktop-${selectedId || "none"}`} detail={detail ?? null} />
           </aside>
         )}
       </div>
