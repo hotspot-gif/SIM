@@ -134,17 +134,36 @@ export function getFilterOptions(): FilterOptions {
   const branches = new Set<string>()
   const zones = new Set<string>()
   const cities = new Set<string>()
+  const citiesByZone = new Map<string, Set<string>>()
+
   for (const b of batches) {
     if (b.territory) {
       zones.add(b.territory)
-      branches.add(branchFromTerritory(b.territory))
+      const branch = branchFromTerritory(b.territory)
+      branches.add(branch)
+      
+      // Map cities by zone (territory)
+      if (b.city) {
+        if (!citiesByZone.has(b.territory)) {
+          citiesByZone.set(b.territory, new Set<string>())
+        }
+        citiesByZone.get(b.territory)!.add(b.city)
+      }
     }
     if (b.city) cities.add(b.city)
   }
+
+  // Convert to object format for JSON serialization
+  const citiesByZoneObj: Record<string, string[]> = {}
+  for (const [zone, citiesSet] of citiesByZone.entries()) {
+    citiesByZoneObj[zone] = [...citiesSet].sort()
+  }
+
   return {
     branches: [...branches].sort(),
     zones: [...zones].sort(),
     cities: [...cities].sort(),
+    citiesByZone: citiesByZoneObj,
   }
 }
 

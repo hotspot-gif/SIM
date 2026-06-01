@@ -65,6 +65,7 @@ export interface FilterOptions {
   branches: string[]
   zones: string[]
   cities: string[]
+  citiesByZone: Record<string, string[]>
 }
 
 export interface DashboardOverview {

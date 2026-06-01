@@ -19,6 +19,7 @@ export function SimScanner() {
 
   useEffect(() => {
     let isActive = true
+    let hasDetected = false
 
     async function startScanner() {
       if (!videoRef.current || !navigator.mediaDevices?.getUserMedia) {
@@ -48,20 +49,22 @@ export function SimScanner() {
 
         readerRef.current = new BrowserMultiFormatReader()
         
-        // Start decoding - don't update state inside callback directly
-        readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
+        // Start decoding continuously
+        await readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
           if (!isActive) return
           
-          if (result) {
+          if (result && !hasDetected) {
+            hasDetected = true
             const scannedValue = result.getText()
-            // Update state outside of the callback to avoid race conditions
-            Promise.resolve().then(() => {
-              if (isActive) {
-                setScanned(scannedValue)
-                setScanning(false)
-                validateScanned(scannedValue)
-              }
-            })
+            // Update state outside of the callback
+            if (scannedValue.trim()) {
+              setScanned(scannedValue)
+              validateScanned(scannedValue)
+              // Allow re-scanning after a short delay
+              setTimeout(() => {
+                hasDetected = false
+              }, 2000)
+            }
           }
         })
       } catch (err) {
@@ -73,6 +76,7 @@ export function SimScanner() {
 
     if (scanning) {
       isActive = true
+      hasDetected = false
       setError(null)
       startScanner()
     }
@@ -94,7 +98,7 @@ export function SimScanner() {
         }
       } catch {}
     }
-  }, [scanning])
+  }, [scanning, validateScanned])
 
   const validateScanned = useCallback(async (value: string) => {
     setError(null)

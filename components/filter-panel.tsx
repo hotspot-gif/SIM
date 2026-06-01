@@ -37,6 +37,11 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
     ? zones.filter((z) => z.startsWith(filters.branch))
     : zones
 
+  // Filter cities by selected zone
+  const visibleCities = filters.zone
+    ? (options?.citiesByZone?.[filters.zone] ?? [])
+    : (options?.cities ?? [])
+
   const hasActive = filters.branch || filters.zone || filters.city || filters.postCode
 
   function set<K extends keyof Filters>(key: K, value: string) {
@@ -110,8 +115,8 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
             <SelectValue placeholder="All cities" />
           </SelectTrigger>
           <SelectContent className="max-h-72">
-            <SelectItem value={ALL}>All cities</SelectItem>
-            {options?.cities.map((c) => (
+            {visibleCities.length > 1 && <SelectItem value={ALL}>All cities</SelectItem>}
+            {visibleCities.map((c) => (
               <SelectItem key={c} value={c}>
                 {c}
               </SelectItem>

@@ -47,13 +47,13 @@
   --radius: 0.625rem;
 
   --sidebar: #21264e;
-  --sidebar-foreground: #e9ecf6;
-  --sidebar-primary: #245bc1;
+  --sidebar-foreground: #f0f1f5;
+  --sidebar-primary: #5b7fff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #2e3463;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #2e3463;
-  --sidebar-ring: #245bc1;
+  --sidebar-accent: #3a417a;
+  --sidebar-accent-foreground: #f0f1f5;
+  --sidebar-border: #353d6e;
+  --sidebar-ring: #5b7fff;
 }
 
 @theme inline {

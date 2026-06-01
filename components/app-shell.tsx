@@ -39,23 +39,23 @@ export function AppShell({ title, children, onSignOut }: Props) {
       <div className="flex min-h-screen">
         {/* Sidebar */}
         <aside
-          className={`border-r border-border bg-card transition-all duration-300 flex flex-col ${
+          className={`border-r border-sidebar-border bg-sidebar transition-all duration-300 flex flex-col ${
             collapsed ? "w-20" : "w-64"
           }`}
         >
           {/* Header */}
-          <div className="border-b border-border p-4 flex items-center justify-between">
+          <div className="border-b border-sidebar-border p-4 flex items-center justify-between">
             {!collapsed && (
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">SIM Dashboard</p>
-                <h2 className="text-sm font-bold text-foreground">Field Ops</h2>
+                <p className="text-xs uppercase tracking-widest text-sidebar-foreground/70">SIM Dashboard</p>
+                <h2 className="text-sm font-bold text-sidebar-foreground">Field Ops</h2>
               </div>
             )}
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setCollapsed(!collapsed)}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
             >
               <ChevronLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
             </Button>
@@ -72,8 +72,8 @@ export function AppShell({ title, children, onSignOut }: Props) {
                   href={item.href}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
                     active
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   } ${collapsed ? "justify-center" : ""}`}
                   title={collapsed ? item.label : ""}
                 >
@@ -85,12 +85,12 @@ export function AppShell({ title, children, onSignOut }: Props) {
           </nav>
 
           {/* Footer */}
-          <div className="border-t border-border p-4">
+          <div className="border-t border-sidebar-border p-4">
             <Button
               variant="outline"
               size="sm"
               onClick={signOut}
-              className={`w-full justify-center ${collapsed ? "px-0" : ""}`}
+              className={`w-full justify-center border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${collapsed ? "px-0" : ""}`}
             >
               <LogOut className="size-4 flex-shrink-0" />
               {!collapsed && <span className="ml-2">Sign out</span>}
