@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import useSWR from "swr"
-import { SignalHigh, SlidersHorizontal, Store, MapPin, Mail, Phone, Loader2, LogOut, PackagePlus } from "lucide-react"
+import { SignalHigh, Store, MapPin, Mail, Phone, Loader2, LogOut, PackagePlus, Eye, EyeOff, Layers } from "lucide-react"
 import Link from "next/link"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
@@ -32,6 +32,7 @@ export function Dashboard({ user, onSignOut }: Props) {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+  const [showSidebars, setShowSidebars] = useState(true)
 
   const { data: options } = useSWR<FilterOptions>("/api/filters", fetcher)
   const { data: detail, isLoading: detailLoading } = useSWR<RetailerDetail>(
@@ -96,11 +97,30 @@ export function Dashboard({ user, onSignOut }: Props) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <Link href="/sim-scan">
+              <Link href="/summary">
+                <Button variant="secondary" size="sm" className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/90">
+                  <Layers className="mr-2 size-4" /> Summary
+                </Button>
+              </Link>
+              <Link href="/search">
+                <Button variant="secondary" size="sm" className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/90">
+                  <Store className="mr-2 size-4" /> Search SIM
+                </Button>
+              </Link>
+              <Link href="/serial-scan">
                 <Button variant="secondary" size="sm" className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/90">
                   <PackagePlus className="mr-2 size-4" /> Scan ICCID
                 </Button>
               </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSidebars((prev) => !prev)}
+                className="border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/80"
+              >
+                {showSidebars ? <EyeOff className="mr-2 size-4" /> : <Eye className="mr-2 size-4" />}
+                {showSidebars ? "Hide panels" : "Show panels"}
+              </Button>
               <Button variant="outline" size="sm" onClick={onSignOut} className="border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/80">
                 <LogOut className="mr-2 size-4" /> Sign out
               </Button>
@@ -121,22 +141,24 @@ export function Dashboard({ user, onSignOut }: Props) {
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-[1600px] flex-col gap-5 p-4 lg:p-6 xl:grid xl:grid-cols-[260px_1fr] xl:items-start">
+      <main className={`mx-auto flex max-w-[1600px] flex-col gap-5 p-4 lg:p-6 xl:grid xl:items-start ${showSidebars ? "xl:grid-cols-[260px_1fr]" : "xl:grid-cols-[1fr]"}`}>
         <section className="grid gap-5 xl:col-span-full">
           <OverviewCards overview={overview ?? null} user={user} />
         </section>
 
-        <div className="hidden lg:block">
-          <div className="sticky top-[120px]">
-            <FilterPanel
-              options={options}
-              filters={filters}
-              onChange={handleFilterChange}
-              allowedBranches={allowedBranches}
-              allowedZones={allowedZones}
-            />
+        {showSidebars && (
+          <div className="hidden lg:block">
+            <div className="sticky top-[120px]">
+              <FilterPanel
+                options={options}
+                filters={filters}
+                onChange={handleFilterChange}
+                allowedBranches={allowedBranches}
+                allowedZones={allowedZones}
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <section className="flex flex-col gap-5">
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -200,9 +222,11 @@ export function Dashboard({ user, onSignOut }: Props) {
           )}
         </section>
 
-        <aside className="xl:col-span-1 xl:block xl:sticky xl:top-[92px]">
-          <ReportPanel detail={detail ?? null} />
-        </aside>
+        {showSidebars && (
+          <aside className="xl:col-span-1 xl:block xl:sticky xl:top-[92px]">
+            <ReportPanel detail={detail ?? null} />
+          </aside>
+        )}
       </main>
     </div>
   )

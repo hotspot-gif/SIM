@@ -29,6 +29,7 @@ function buildAdjustedSummary(batches: SimBatch[]) {
 export function ReportPanel({ detail }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [editableBatches, setEditableBatches] = useState<SimBatch[]>([])
+  const [reportFilter, setReportFilter] = useState<"all" | "zero" | "aboveZero">("all")
 
   useEffect(() => {
     setPreviewUrl(null)
@@ -43,11 +44,25 @@ export function ReportPanel({ detail }: Props) {
     }
   }, [detail?.retailer.retailerId])
 
+  const filteredBatchesWithIndex = useMemo(() => {
+    return editableBatches
+      .map((batch, index) => ({ batch, index }))
+      .filter(({ batch }) => {
+        if (reportFilter === "zero") return batch.faceValue === 0
+        if (reportFilter === "aboveZero") return batch.faceValue > 0
+        return true
+      })
+  }, [editableBatches, reportFilter])
+
+  const filteredBatches = useMemo(() => filteredBatchesWithIndex.map(({ batch }) => batch), [filteredBatchesWithIndex])
+
   const adjustedDetail = useMemo(() => {
     if (!detail) return null
-    const summary = buildAdjustedSummary(editableBatches)
-    return { ...detail, batches: editableBatches, summary }
-  }, [detail, editableBatches])
+    const summary = buildAdjustedSummary(filteredBatches)
+    return { ...detail, batches: filteredBatches, summary }
+  }, [detail, filteredBatches])
+
+  const hasReportBatches = filteredBatches.length > 0
 
   function updateBatchValue(index: number, field: keyof Pick<SimBatch, "iccidFr" | "iccidTo" | "qty">, value: string) {
     setEditableBatches((current) => {
@@ -108,6 +123,31 @@ export function ReportPanel({ detail }: Props) {
       </div>
 
       <div className="rounded-lg bg-secondary/60 p-3 text-xs">
+        <div className="flex flex-wrap items-center gap-2 pb-3">
+          <span className="text-muted-foreground">Include in report:</span>
+          <button
+            type="button"
+            onClick={() => setReportFilter("all")}
+            className={`rounded-full border px-3 py-1 text-[11px] ${reportFilter === "all" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => setReportFilter("zero")}
+            className={`rounded-full border px-3 py-1 text-[11px] ${reportFilter === "zero" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
+          >
+            €0 SIM only
+          </button>
+          <button
+            type="button"
+            onClick={() => setReportFilter("aboveZero")}
+            className={`rounded-full border px-3 py-1 text-[11px] ${reportFilter === "aboveZero" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
+          >
+            €0+ SIM only
+          </button>
+        </div>
+
         <div className="flex justify-between py-0.5">
           <span className="text-muted-foreground">Retailer</span>
           <span className="font-semibold text-foreground">{detail.retailer.retailerId}</span>
@@ -136,52 +176,59 @@ export function ReportPanel({ detail }: Props) {
           <span>Reimbursement</span>
         </div>
         <div className="mt-2 space-y-2">
-          {editableBatches.map((batch, index) => (
-            <div key={`${batch.retailerId}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_1fr_100px_120px]">
-              <Input
-                value={batch.iccidFr}
-                onChange={(event) => updateBatchValue(index, "iccidFr", event.target.value)}
-                className="border-sidebar-border bg-background text-foreground"
-              />
-              <Input
-                value={batch.iccidTo}
-                onChange={(event) => updateBatchValue(index, "iccidTo", event.target.value)}
-                className="border-sidebar-border bg-background text-foreground"
-              />
-              <Input
-                type="number"
-                value={String(batch.qty)}
-                min={0}
-                onChange={(event) => updateBatchValue(index, "qty", event.target.value)}
-                className="border-sidebar-border bg-background text-foreground"
-              />
-              <div className="flex items-center rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground">
-                {formatCurrency(batch.reimbursement)}
+          {filteredBatchesWithIndex.length > 0 ? (
+            filteredBatchesWithIndex.map(({ batch, index }) => (
+              <div key={`${batch.retailerId}-${index}`} className="grid gap-2 text-sm sm:grid-cols-[1fr_1fr_100px_120px]">
+                <Input
+                  value={batch.iccidFr}
+                  onChange={(event) => updateBatchValue(index, "iccidFr", event.target.value)}
+                  className="border-sidebar-border bg-background text-foreground"
+                />
+                <Input
+                  value={batch.iccidTo}
+                  onChange={(event) => updateBatchValue(index, "iccidTo", event.target.value)}
+                  className="border-sidebar-border bg-background text-foreground"
+                />
+                <Input
+                  type="number"
+                  value={String(batch.qty)}
+                  min={0}
+                  onChange={(event) => updateBatchValue(index, "qty", event.target.value)}
+                  className="border-sidebar-border bg-background text-foreground"
+                />
+                <div className="flex items-center rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground">
+                  {formatCurrency(batch.reimbursement)}
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="rounded-xl border border-dashed border-border bg-background p-4 text-sm text-muted-foreground">
+              No batches match the selected report filter.
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Button onClick={generate} className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button onClick={generate} disabled={!hasReportBatches} className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
           <FileCheck className="mr-2 size-4" />
           Generate Report PDF
         </Button>
         <div className="grid grid-cols-2 gap-2">
           <Button
             onClick={download}
+            disabled={!hasReportBatches}
             variant="outline"
-            className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+            className="border-accent text-accent hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Download className="mr-2 size-4" />
             Download
           </Button>
           <Button
             onClick={send}
+            disabled={!detail.retailer.email || !hasReportBatches}
             variant="outline"
-            disabled={!detail.retailer.email}
-            className="border-brand-green text-success-foreground hover:bg-success hover:text-success-foreground"
+            className="border-brand-green text-success-foreground hover:bg-success hover:text-success-foreground disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Send className="mr-2 size-4" />
             Send
