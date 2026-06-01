@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Layers, Search, Barcode, PackagePlus, LogOut } from "lucide-react"
+import { Home, Layers, Search, Barcode, PackagePlus, X, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { clearStoredUser } from "@/lib/auth"
 
@@ -27,14 +27,14 @@ export function Sidebar({ onCollapse }: Props) {
   }
 
   return (
-    <aside className="hidden xl:flex xl:w-[260px] xl:flex-col xl:border-r xl:border-border xl:bg-sidebar xl:px-4 xl:py-5">
+    <aside className="hidden lg:flex lg:w-[260px] lg:flex-col lg:border-r lg:border-border lg:bg-sidebar lg:px-4 lg:py-5">
       <div className="flex items-center justify-between pb-8">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">SIM Dashboard</p>
           <h2 className="text-xl font-semibold text-foreground">Field Ops</h2>
         </div>
         <Button variant="ghost" size="icon" onClick={onCollapse}>
-          <LogOut className="size-4 rotate-90" />
+          <X className="size-4" />
         </Button>
       </div>
 

@@ -5,7 +5,7 @@ import useSWR from "swr"
 import { Search } from "lucide-react"
 import { getStoredUser, type UserProfile } from "@/lib/auth"
 import { fetcher } from "@/lib/fetcher"
-import type { RetailerDetail } from "@/lib/types"
+import type { FilterOptions, RetailerDetail } from "@/lib/types"
 import { AppShell } from "@/components/app-shell"
 import { RetailerSearch } from "@/components/retailer-search"
 import { StockTable } from "@/components/stock-table"
@@ -26,6 +26,8 @@ export default function SearchPage() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [filters, setFilters] = useState<PageFilters>(EMPTY_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+
+  const { data: options } = useSWR<FilterOptions>("/api/filters", fetcher)
 
   useEffect(() => {
     const stored = getStoredUser()
@@ -68,7 +70,7 @@ export default function SearchPage() {
             </div>
             <div className="mt-4">
               <FilterPanel
-                options={undefined}
+                options={options}
                 filters={filters}
                 onChange={(next) => {
                   setFilters(next)

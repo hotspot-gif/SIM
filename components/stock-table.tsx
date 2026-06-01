@@ -10,12 +10,14 @@ export function StockTable({ batches }: Props) {
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] border-collapse text-sm">
+        <table className="w-full min-w-[900px] border-collapse text-sm">
           <thead>
             <tr className="bg-primary text-primary-foreground">
               <th className="px-3 py-2.5 text-left font-semibold">ICCID From</th>
               <th className="px-3 py-2.5 text-left font-semibold">ICCID To</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Vendor</th>
               <th className="px-3 py-2.5 text-left font-semibold">Profile</th>
+              <th className="px-3 py-2.5 text-left font-semibold">Status</th>
               <th className="px-3 py-2.5 text-right font-semibold">Qty</th>
               <th className="px-3 py-2.5 text-right font-semibold">Face Value</th>
               <th className="px-3 py-2.5 text-right font-semibold">Disc %</th>
@@ -30,7 +32,8 @@ export function StockTable({ batches }: Props) {
               >
                 <td className="px-3 py-2.5 font-mono text-xs text-foreground">{b.iccidFr || "-"}</td>
                 <td className="px-3 py-2.5 font-mono text-xs text-foreground">{b.iccidTo || "-"}</td>
-                <td className="px-3 py-2.5">
+                <td className="px-3 py-2.5 text-sm text-foreground">{b.vendor || "-"}</td>
+                <td className="px-3 py-2.5 text-sm text-foreground">
                   <span className="flex items-center gap-1.5">
                     <Badge
                       variant="outline"
@@ -43,6 +46,7 @@ export function StockTable({ batches }: Props) {
                     )}
                   </span>
                 </td>
+                <td className="px-3 py-2.5 text-sm text-foreground">{b.status || "-"}</td>
                 <td className="px-3 py-2.5 text-right font-semibold text-foreground">{formatNumber(b.qty)}</td>
                 <td className="px-3 py-2.5 text-right text-foreground">{formatCurrency(b.faceValue)}</td>
                 <td className="px-3 py-2.5 text-right text-foreground">{b.discount}%</td>
