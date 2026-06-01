@@ -12,8 +12,8 @@ export const metadata: Metadata = {
     'Identify defective/old SIM stock at retailer level and generate collection reports for Italy field teams.',
   generator: 'v0.app',
   icons: {
-    icon: '/icon.svg',
-    apple: '/apple-icon.png',
+    icon: 'https://cms-assets.ldsvcplatform.com/IT/s3fs-public/2023-09/MicrosoftTeams-image%20%2813%29.png',
+    apple: 'https://cms-assets.ldsvcplatform.com/IT/s3fs-public/2023-09/MicrosoftTeams-image%20%2813%29.png',
   },
 }
 

@@ -31,6 +31,8 @@ const TRANSLATIONS = {
     disc: "DISC %",
     reimbursement: "REIMBURSEMENT",
     totalQty: "Total Qty Collected",
+    zeroQty: "Total €0 SIM Qty",
+    creditQty: "Total Preload/Credit SIM Qty",
     totalFaceValue: "Total Face Value",
     totalReimbursement: "Total Reimbursement Amount",
     importantNote: "Important Note",
@@ -59,6 +61,8 @@ const TRANSLATIONS = {
     disc: "SCONTO %",
     reimbursement: "RIMBORSO",
     totalQty: "Qta Totale Raccolta",
+    zeroQty: "Qta Totale SIM €0",
+    creditQty: "Qta Totale SIM Preload/Credit",
     totalFaceValue: "Valore Nominale Totale",
     totalReimbursement: "Importo Totale Rimborso",
     importantNote: "Nota Importante",
@@ -77,6 +81,10 @@ export function buildReportDoc(detail: RetailerDetail, lang: ReportLanguage = "e
   const pageWidth = doc.internal.pageSize.getWidth()
   const { retailer, batches, summary } = detail
   const generatedAt = new Date()
+
+  // Calculate specific quantities
+  const zeroQty = batches.filter(b => b.faceValue === 0).reduce((acc, b) => acc + b.qty, 0)
+  const creditQty = batches.filter(b => b.faceValue > 0).reduce((acc, b) => acc + b.qty, 0)
 
   // Header band
   doc.setFillColor(...NAVY)
@@ -164,6 +172,8 @@ export function buildReportDoc(detail: RetailerDetail, lang: ReportLanguage = "e
     startY: y,
     body: [
       [t.totalQty, formatNumber(summary.totalQty)],
+      [t.zeroQty, formatNumber(zeroQty)],
+      [t.creditQty, formatNumber(creditQty)],
       [t.totalFaceValue, formatCurrency(summary.totalFaceValue)],
       [t.totalReimbursement, formatCurrency(summary.netReimbursement)],
     ],
@@ -206,15 +216,21 @@ export function downloadReport(detail: RetailerDetail, lang: ReportLanguage = "e
 }
 
 export function buildMailtoLink(detail: RetailerDetail, lang: ReportLanguage = "en"): string {
-  const { retailer, summary } = detail
+  const { retailer, summary, batches } = detail
   const t = TRANSLATIONS[lang]
   const subject = `${t.emailSubject} - ${retailer.retailerId}`
+
+  const zeroQty = batches.filter(b => b.faceValue === 0).reduce((acc, b) => acc + b.qty, 0)
+  const creditQty = batches.filter(b => b.faceValue > 0).reduce((acc, b) => acc + b.qty, 0)
+
   const body = [
     `${t.emailGreeting} ${retailer.retailerId},`,
     "",
     t.emailBody,
     "",
     `${t.totalQty}: ${formatNumber(summary.totalQty)}`,
+    `${t.zeroQty}: ${formatNumber(zeroQty)}`,
+    `${t.creditQty}: ${formatNumber(creditQty)}`,
     `${t.totalReimbursement}: ${formatCurrency(summary.netReimbursement)}`,
     "",
     t.note,
