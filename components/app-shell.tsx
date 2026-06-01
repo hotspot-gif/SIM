@@ -7,6 +7,7 @@ import { ChevronLeft, LogOut, Home, Search, Barcode, Menu, X } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
 import { clearStoredUser } from "@/lib/auth"
+import { getSidebarCollapsed, setSidebarCollapsed } from "@/lib/store"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home },
@@ -21,29 +22,26 @@ interface Props {
 }
 
 export function AppShell({ title, children, onSignOut }: Props) {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(getSidebarCollapsed())
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
-  const isExpanded = mounted ? !collapsed : true
+  const isExpanded = mounted ? !collapsed : !getSidebarCollapsed()
 
   // Load sidebar state from localStorage on mount
   useEffect(() => {
     setMounted(true)
-    const saved = localStorage.getItem("sidebar-collapsed")
-    if (saved !== null) {
-      setCollapsed(JSON.parse(saved))
-    }
+    const saved = getSidebarCollapsed()
+    setCollapsed(saved)
   }, [])
 
-  // Persist sidebar state to localStorage
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem("sidebar-collapsed", JSON.stringify(collapsed))
-    }
-  }, [collapsed, mounted])
+  function toggleCollapsed() {
+    const next = !collapsed
+    setCollapsed(next)
+    setSidebarCollapsed(next)
+  }
 
   function signOut() {
     if (onSignOut) {
@@ -101,7 +99,7 @@ export function AppShell({ title, children, onSignOut }: Props) {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={toggleCollapsed}
               className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
             >
               <ChevronLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />

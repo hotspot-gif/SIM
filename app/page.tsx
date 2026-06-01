@@ -35,19 +35,9 @@ export default function Page() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-background px-4 py-12 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
+      <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+        <div className="w-full max-w-md">
           <LoginForm onSignIn={handleSignIn} errorMessage={errorMessage} />
-          <div className="mt-6 rounded-3xl border border-border bg-card/90 p-5 text-sm text-muted-foreground shadow-sm">
-            <p className="font-semibold text-foreground">Quick access</p>
-            <p className="mt-2">Use your assigned email and the numeric password from your branch or zone assignment.</p>
-            <p className="mt-2">Once signed in, you will only see retailers in your assigned branch or zone.</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link href="/sim-scan" className="rounded-full border border-border px-4 py-2 text-sm text-foreground hover:bg-secondary">
-                Go to scan page
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     )
