@@ -28,22 +28,15 @@ function buildAdjustedSummary(batches: SimBatch[]) {
 
 export function ReportPanel({ detail }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [editableBatches, setEditableBatches] = useState<SimBatch[]>([])
+  const [editableBatches, setEditableBatches] = useState<SimBatch[]>(detail?.batches.map(b => ({ ...b })) ?? [])
   const [reportFilter, setReportFilter] = useState<"all" | "zero" | "aboveZero">("all")
   const [language, setLanguage] = useState<ReportLanguage>("en")
 
   useEffect(() => {
-    setPreviewUrl(null)
-    if (detail) {
-      setEditableBatches(detail.batches.map((batch) => ({ ...batch })))
-    }
     return () => {
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev)
-        return null
-      })
+      if (previewUrl) URL.revokeObjectURL(previewUrl)
     }
-  }, [detail?.retailer.retailerId])
+  }, [previewUrl])
 
   const filteredBatchesWithIndex = useMemo(() => {
     return editableBatches

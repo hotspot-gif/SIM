@@ -32,6 +32,9 @@
   --brand-yellow: #ffdd64;
   --brand-cyan: #00d7ff;
   --brand-purple: #46286e;
+  --brand-orange: #f97316;
+  --brand-red: #ef4444;
+  --brand-teal: #14b8a6;
 
   --success: #08dc7d;
   --success-foreground: #053a22;
@@ -86,6 +89,9 @@
   --color-brand-yellow: var(--brand-yellow);
   --color-brand-cyan: var(--brand-cyan);
   --color-brand-purple: var(--brand-purple);
+  --color-brand-orange: var(--brand-orange);
+  --color-brand-red: var(--brand-red);
+  --color-brand-teal: var(--brand-teal);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-warning: var(--warning);

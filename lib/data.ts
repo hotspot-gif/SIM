@@ -19,15 +19,15 @@ interface DataStore {
 
 let cache: DataStore | null = null
 
-function num(v: string): number {
+function num(v: string | undefined): number {
   if (!v) return 0
-  const n = Number.parseFloat(v.replace(/[^0-9.\-]/g, ""))
+  const n = Number.parseFloat(String(v).replace(/[^0-9.\-]/g, ""))
   return Number.isFinite(n) ? n : 0
 }
 
 function clean(v: string | undefined): string {
   if (v === undefined || v === null) return ""
-  const t = v.trim()
+  const t = String(v).trim()
   return t === "NULL" ? "" : t
 }
 

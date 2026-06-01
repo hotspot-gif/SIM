@@ -80,14 +80,14 @@ export function Dashboard({ user, onSignOut }: Props) {
 
   return (
     <AppShell title="Dashboard" onSignOut={onSignOut}>
-      <div className="mx-auto flex max-w-[1600px] flex-col gap-5">
-        <section className="grid gap-5 xl:col-span-full">
+      <div className="mx-auto grid max-w-[1600px] gap-5 xl:grid-cols-[280px_1fr_340px]">
+        <section className="col-span-full">
           <OverviewCards overview={overview ?? null} user={user} />
         </section>
 
         {showSidebars && (
           <div className="hidden lg:block">
-            <div className="sticky top-[120px]">
+            <div className="sticky top-[20px]">
               <FilterPanel
                 options={options}
                 filters={filters}
@@ -176,8 +176,8 @@ export function Dashboard({ user, onSignOut }: Props) {
         </section>
 
         {showSidebars && (
-          <aside className="xl:col-span-1 xl:block xl:sticky xl:top-[92px]">
-            <ReportPanel detail={detail ?? null} />
+          <aside className="hidden xl:block xl:sticky xl:top-[20px]">
+            <ReportPanel key={selectedId || "none"} detail={detail ?? null} />
           </aside>
         )}
       </div>
