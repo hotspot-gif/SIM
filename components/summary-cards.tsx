@@ -24,13 +24,6 @@ export function SummaryCards({ summary }: Props) {
       accent: "bg-brand-purple",
     },
     {
-      label: "Total Discount",
-      value: `${formatNumber(summary.totalDiscount)}%`,
-      hint: "Aggregated discount",
-      icon: Percent,
-      accent: "bg-brand-cyan",
-    },
-    {
       label: "Net Reimbursement",
       value: formatCurrency(summary.netReimbursement),
       hint: "(FaceValue x Disc%) x Qty",
@@ -40,7 +33,7 @@ export function SummaryCards({ summary }: Props) {
   ]
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       {cards.map((c) => (
         <div
           key={c.label}

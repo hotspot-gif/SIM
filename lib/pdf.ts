@@ -32,7 +32,6 @@ const TRANSLATIONS = {
     reimbursement: "REIMBURSEMENT",
     totalQty: "Total Qty Collected",
     totalFaceValue: "Total Face Value",
-    totalDiscount: "Total Discount",
     totalReimbursement: "Total Reimbursement Amount",
     importantNote: "Important Note",
     note: COLLECTION_NOTE_EN,
@@ -61,7 +60,6 @@ const TRANSLATIONS = {
     reimbursement: "RIMBORSO",
     totalQty: "Qta Totale Raccolta",
     totalFaceValue: "Valore Nominale Totale",
-    totalDiscount: "Sconto Totale",
     totalReimbursement: "Importo Totale Rimborso",
     importantNote: "Nota Importante",
     note: COLLECTION_NOTE_IT,
@@ -167,7 +165,6 @@ export function buildReportDoc(detail: RetailerDetail, lang: ReportLanguage = "e
     body: [
       [t.totalQty, formatNumber(summary.totalQty)],
       [t.totalFaceValue, formatCurrency(summary.totalFaceValue)],
-      [t.totalDiscount, `${formatNumber(summary.totalDiscount)} %`],
       [t.totalReimbursement, formatCurrency(summary.netReimbursement)],
     ],
     theme: "grid",
