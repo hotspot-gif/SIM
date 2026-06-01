@@ -5,7 +5,7 @@ import { FileText, Download, Send, FileCheck, Pencil, Trash2 } from "lucide-reac
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { RetailerDetail, SimBatch } from "@/lib/types"
-import { buildReportDoc, buildMailtoLink, type ReportLanguage } from "@/lib/pdf"
+import { buildReportDoc, buildMailtoLink, type ReportLanguage, COLLECTION_NOTE_EN, COLLECTION_NOTE_IT } from "@/lib/pdf"
 import { calcReimbursement, formatCurrency, formatNumber } from "@/lib/calc"
 
 interface Props {
@@ -28,9 +28,17 @@ function buildAdjustedSummary(batches: SimBatch[]) {
 
 export function ReportPanel({ detail }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [editableBatches, setEditableBatches] = useState<SimBatch[]>(detail?.batches.map(b => ({ ...b })) ?? [])
+  const [editableBatches, setEditableBatches] = useState<SimBatch[]>([])
   const [reportFilter, setReportFilter] = useState<"all" | "zero" | "aboveZero">("all")
   const [language, setLanguage] = useState<ReportLanguage>("en")
+
+  useEffect(() => {
+    if (detail) {
+      setEditableBatches(detail.batches.map((b) => ({ ...b })))
+    } else {
+      setEditableBatches([])
+    }
+  }, [detail])
 
   useEffect(() => {
     return () => {
@@ -280,7 +288,7 @@ export function ReportPanel({ detail }: Props) {
 
       <p className="rounded-md bg-warning/20 p-2.5 text-[11px] leading-relaxed text-foreground">
         <span className="font-semibold">Note: </span>
-        {COLLECTION_NOTE}
+        {language === "it" ? COLLECTION_NOTE_IT : COLLECTION_NOTE_EN}
       </p>
     </div>
   )

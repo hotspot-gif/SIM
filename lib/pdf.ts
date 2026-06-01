@@ -9,6 +9,9 @@ const PEACH: [number, number, number] = [255, 247, 242]
 
 export type ReportLanguage = "en" | "it"
 
+export const COLLECTION_NOTE_EN = "The credit will be applied to the originally submitted retailer's POS account within 30 days from the collection date. The credited amount will be provided as SIM Activation Balance."
+export const COLLECTION_NOTE_IT = "Il credito verrà applicato al conto POS del rivenditore originariamente presentato entro 30 giorni dalla data di raccolta. L'importo accreditato verrà fornito come Saldo di Attivazione SIM."
+
 const TRANSLATIONS = {
   en: {
     reportTitle: "SIM Stock Collection Report",
@@ -32,7 +35,7 @@ const TRANSLATIONS = {
     totalDiscount: "Total Discount",
     totalReimbursement: "Total Reimbursement Amount",
     importantNote: "Important Note",
-    note: "The credit will be applied to the originally submitted retailer's POS account within 30 days from the collection date. The credited amount will be provided as SIM Activation Balance.",
+    note: COLLECTION_NOTE_EN,
     emailSubject: "SIM Stock Collection Report",
     emailGreeting: "Dear",
     emailBody: "Please find attached the SIM stock collection report for the defective/old stock collected from your store.",
@@ -61,7 +64,7 @@ const TRANSLATIONS = {
     totalDiscount: "Sconto Totale",
     totalReimbursement: "Importo Totale Rimborso",
     importantNote: "Nota Importante",
-    note: "Il credito verrà applicato al conto POS del rivenditore originariamente presentato entro 30 giorni dalla data di raccolta. L'importo accreditato verrà fornito come Saldo di Attivazione SIM.",
+    note: COLLECTION_NOTE_IT,
     emailSubject: "Rapporto Raccolta Stock SIM",
     emailGreeting: "Gentile",
     emailBody: "In allegato il rapporto di raccolta stock SIM per lo stock difettoso/vecchio raccolto presso il vostro punto vendita.",
