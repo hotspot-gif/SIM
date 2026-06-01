@@ -2,13 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react"
 import useSWR from "swr"
-import { SignalHigh, Store, MapPin, Mail, Phone, Loader2, LogOut, PackagePlus, Eye, EyeOff, Layers } from "lucide-react"
-import Link from "next/link"
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetHeader } from "@/components/ui/sheet"
+import { SignalHigh, Store, MapPin, Mail, Phone, Loader2, PackagePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { fetcher } from "@/lib/fetcher"
 import type { FilterOptions, RetailerDetail, DashboardOverview } from "@/lib/types"
 import type { UserProfile } from "@/lib/auth"
+import { AppShell } from "@/components/app-shell"
 import { FilterPanel, type Filters } from "./filter-panel"
 import { RetailerSearch } from "./retailer-search"
 import { IccidValidator } from "./iccid-validator"
@@ -80,68 +79,8 @@ export function Dashboard({ user, onSignOut }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-30 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">
-        <div className="flex flex-col gap-3 px-4 py-4 lg:px-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <span className="flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                <SignalHigh className="size-5" />
-              </span>
-              <div className="leading-tight">
-                <h1 className="text-base font-bold lg:text-lg">SIM Stock Collection</h1>
-                <p className="text-[11px] text-sidebar-foreground/60 lg:text-xs">
-                  Italy Field Operations - Defective Stock Collection
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href="/summary">
-                <Button variant="secondary" size="sm" className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/90">
-                  <Layers className="mr-2 size-4" /> Summary
-                </Button>
-              </Link>
-              <Link href="/search">
-                <Button variant="secondary" size="sm" className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/90">
-                  <Store className="mr-2 size-4" /> Search SIM
-                </Button>
-              </Link>
-              <Link href="/serial-scan">
-                <Button variant="secondary" size="sm" className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground hover:bg-sidebar-accent/90">
-                  <PackagePlus className="mr-2 size-4" /> Scan ICCID
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSidebars((prev) => !prev)}
-                className="border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/80"
-              >
-                {showSidebars ? <EyeOff className="mr-2 size-4" /> : <Eye className="mr-2 size-4" />}
-                {showSidebars ? "Hide panels" : "Show panels"}
-              </Button>
-              <Button variant="outline" size="sm" onClick={onSignOut} className="border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent/80">
-                <LogOut className="mr-2 size-4" /> Sign out
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 rounded-3xl border border-border bg-card p-4 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-semibold text-foreground">Welcome, {user.name}</p>
-              <p>{user.displayRole}</p>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              {user.allowedZones.length === 1
-                ? `Zone access: ${user.allowedZones[0]}`
-                : `Branch access: ${user.allowedBranches.length} branch(es)`}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className={`mx-auto flex max-w-[1600px] flex-col gap-5 p-4 lg:p-6 xl:grid xl:items-start ${showSidebars ? "xl:grid-cols-[260px_1fr]" : "xl:grid-cols-[1fr]"}`}>
+    <AppShell title="Dashboard" onSignOut={onSignOut}>
+      <div className="mx-auto flex max-w-[1600px] flex-col gap-5">
         <section className="grid gap-5 xl:col-span-full">
           <OverviewCards overview={overview ?? null} user={user} />
         </section>
@@ -227,7 +166,7 @@ export function Dashboard({ user, onSignOut }: Props) {
             <ReportPanel detail={detail ?? null} />
           </aside>
         )}
-      </main>
-    </div>
+      </div>
+    </AppShell>
   )
 }
