@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { Camera, Barcode, RefreshCw, CheckCircle, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -18,65 +18,85 @@ export function SimScanner() {
   const [scanning, setScanning] = useState(false)
 
   useEffect(() => {
+    let isActive = true
+
     async function startScanner() {
       if (!videoRef.current || !navigator.mediaDevices?.getUserMedia) {
-        setError("Camera not available on this device.")
+        if (isActive) setError("Camera not available on this device.")
         return
       }
 
       try {
+        // Request camera with minimal, widely-supported constraints
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "environment",
-            focusMode: "continuous" as any,
-            torch: false,
+            facingMode: { ideal: "environment" },
+            width: { min: 320, ideal: 640, max: 1280 },
+            height: { min: 240, ideal: 480, max: 720 },
           },
         })
+
+        if (!isActive) {
+          stream.getTracks().forEach((track) => track.stop())
+          return
+        }
+
         streamRef.current = stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream
-          videoRef.current.setAttribute("autoplay", "true")
-          videoRef.current.setAttribute("playsinline", "true")
-          await videoRef.current.play()
         }
 
         readerRef.current = new BrowserMultiFormatReader()
+        
+        // Start decoding - don't update state inside callback directly
         readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
+          if (!isActive) return
+          
           if (result) {
             const scannedValue = result.getText()
-            setScanned(scannedValue)
-            setScanning(false)
-            // Auto-validate the scanned ICCID
-            validateScanned(scannedValue)
-          }
-          if (error) {
-            // Ignore all scanning errors silently - this is normal during continuous scanning
-            // Errors are expected when the camera doesn't detect a barcode
+            // Update state outside of the callback to avoid race conditions
+            Promise.resolve().then(() => {
+              if (isActive) {
+                setScanned(scannedValue)
+                setScanning(false)
+                validateScanned(scannedValue)
+              }
+            })
           }
         })
-      } catch {
-        setError("Unable to open camera. Please allow camera access or use manual entry.")
+      } catch (err) {
+        if (isActive) {
+          setError("Unable to open camera. Please allow camera access or use manual entry.")
+        }
       }
     }
 
     if (scanning) {
+      isActive = true
       setError(null)
       startScanner()
     }
 
     return () => {
-      if (readerRef.current) {
-        readerRef.current.reset()
-        readerRef.current = null
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((track) => track.stop())
-        streamRef.current = null
-      }
+      isActive = false
+      try {
+        if (readerRef.current) {
+          readerRef.current.reset()
+          readerRef.current = null
+        }
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => {
+            try {
+              track.stop()
+            } catch {}
+          })
+          streamRef.current = null
+        }
+      } catch {}
     }
   }, [scanning])
 
-  async function validateScanned(value: string) {
+  const validateScanned = useCallback(async (value: string) => {
     setError(null)
     setResult(null)
     if (!value.trim()) return
@@ -86,7 +106,7 @@ export function SimScanner() {
     } catch {
       setError("Invalid or not found ICCID. Please try another one.")
     }
-  }
+  }, [])
 
   async function validate(value: string) {
     setScanned(value)
@@ -148,10 +168,10 @@ export function SimScanner() {
               <video
                 ref={videoRef}
                 className="aspect-video w-full object-cover"
-                autoplay
+                autoPlay
                 playsInline
                 muted
-                disablePictureInPicture
+                controls={false}
               />
             </div>
           )}
