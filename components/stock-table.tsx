@@ -32,7 +32,9 @@ export function StockTable({ batches }: Props) {
               >
                 <td className="px-3 py-2.5 font-mono text-xs text-foreground">{b.iccidFr || "-"}</td>
                 <td className="px-3 py-2.5 font-mono text-xs text-foreground">{b.iccidTo || "-"}</td>
-                <td className="px-3 py-2.5 text-sm text-foreground">{b.authDate ? new Date(b.authDate).toLocaleDateString('en-GB') : "-"}</td>
+                <td className="px-3 py-2.5 text-sm text-foreground">
+                  {b.authDate ? new Date(b.authDate).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' }).split(' ').join('-') : "-"}
+                </td>
                 <td className="px-3 py-2.5 text-sm text-foreground">
                   <span className="flex items-center gap-1.5">
                     <Badge

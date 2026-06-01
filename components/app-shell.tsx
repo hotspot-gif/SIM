@@ -22,10 +22,13 @@ interface Props {
 
 export function AppShell({ title, children, onSignOut }: Props) {
   const [collapsed, setCollapsed] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  const isExpanded = !collapsed || isHovered
 
   // Load sidebar state from localStorage on mount
   useEffect(() => {
@@ -78,26 +81,39 @@ export function AppShell({ title, children, onSignOut }: Props) {
 
         {/* Sidebar */}
         <aside
+          onMouseEnter={() => collapsed && setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           className={`fixed inset-y-0 left-0 top-12 z-50 border-r border-sidebar-border bg-sidebar transition-all duration-300 flex flex-col lg:static lg:top-auto lg:z-auto lg:h-screen ${
-            collapsed ? "w-20" : "w-64"
+            isExpanded ? "w-64" : "w-20"
           } ${mobileOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
         >
           {/* Header */}
           <div className="border-b border-sidebar-border p-4 flex items-center justify-between hidden lg:flex">
-            {!collapsed && (
+            {isExpanded ? (
               <div>
                 <p className="text-xs uppercase tracking-widest text-sidebar-foreground/70">SIM Dashboard</p>
                 <h2 className="text-sm font-bold text-sidebar-foreground">Field Ops</h2>
               </div>
+            ) : (
+              <div className="w-full flex justify-center">
+                <div className="h-8 w-8 rounded-full bg-sidebar-primary flex items-center justify-center text-[10px] font-bold text-sidebar-primary-foreground">
+                  FO
+                </div>
+              </div>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCollapsed(!collapsed)}
-              className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
-            >
-              <ChevronLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
-            </Button>
+            {isExpanded && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setCollapsed(!collapsed)
+                  setIsHovered(false)
+                }}
+                className="h-8 w-8 p-0 text-sidebar-foreground hover:bg-sidebar-accent"
+              >
+                <ChevronLeft className={`size-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+              </Button>
+            )}
           </div>
 
           {/* Navigation */}
@@ -114,11 +130,11 @@ export function AppShell({ title, children, onSignOut }: Props) {
                     active
                       ? "bg-sidebar-primary text-sidebar-primary-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                  } ${collapsed ? "justify-center lg:justify-center" : ""}`}
-                  title={collapsed ? item.label : ""}
+                  } ${isExpanded ? "" : "justify-center"}`}
+                  title={!isExpanded ? item.label : ""}
                 >
                   <Icon className="size-4 flex-shrink-0" />
-                  {!collapsed && <span>{item.label}</span>}
+                  {isExpanded && <span>{item.label}</span>}
                 </Link>
               )
             })}
@@ -130,10 +146,10 @@ export function AppShell({ title, children, onSignOut }: Props) {
               variant="outline"
               size="sm"
               onClick={signOut}
-              className={`w-full justify-center border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm ${collapsed ? "px-0" : ""}`}
+              className={`w-full justify-center border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm ${!isExpanded ? "px-0" : ""}`}
             >
               <LogOut className="size-4 flex-shrink-0" />
-              {!collapsed && <span className="ml-2">Sign out</span>}
+              {isExpanded && <span className="ml-2">Sign out</span>}
             </Button>
           </div>
         </aside>

@@ -119,7 +119,7 @@ export function Sidebar({ onCollapse }: Props) {
           <Button
             variant="outline"
             size="sm"
-            className="w-full border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm"
+            className="w-full border-sidebar-border bg-transparent text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-xs lg:text-sm"
             onClick={handleSignOut}
           >
             <LogOut className="mr-2 size-4" /> Sign out

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import type { FilterOptions } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 export interface Filters {
   branch: string
@@ -74,7 +75,10 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
           value={filters.branch || (branches.length === 1 ? branches[0] : ALL)}
           onValueChange={(v) => onChange({ ...filters, branch: v === ALL ? "" : v, zone: "" })}
         >
-          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60">
+          <SelectTrigger className={cn(
+            "border-sidebar-border bg-sidebar-accent text-sidebar-foreground",
+            (!filters.branch || filters.branch === ALL) && "text-sidebar-foreground/70"
+          )}>
             <SelectValue placeholder="All branches" />
           </SelectTrigger>
           <SelectContent>
@@ -94,7 +98,10 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
           value={filters.zone || (visibleZones.length === 1 ? visibleZones[0] : ALL)}
           onValueChange={(v) => set("zone", v === ALL ? "" : v)}
         >
-          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60">
+          <SelectTrigger className={cn(
+            "border-sidebar-border bg-sidebar-accent text-sidebar-foreground",
+            (!filters.zone || filters.zone === ALL) && "text-sidebar-foreground/70"
+          )}>
             <SelectValue placeholder="All zones" />
           </SelectTrigger>
           <SelectContent>
@@ -111,7 +118,10 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
       <div className="flex flex-col gap-1.5">
         <Label className="text-xs font-medium text-sidebar-foreground">City</Label>
         <Select value={filters.city || ALL} onValueChange={(v) => set("city", v === ALL ? "" : v)}>
-          <SelectTrigger className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60">
+          <SelectTrigger className={cn(
+            "border-sidebar-border bg-sidebar-accent text-sidebar-foreground",
+            (!filters.city || filters.city === ALL) && "text-sidebar-foreground/70"
+          )}>
             <SelectValue placeholder="All cities" />
           </SelectTrigger>
           <SelectContent className="max-h-72">
@@ -132,7 +142,7 @@ export function FilterPanel({ options, filters, onChange, allowedBranches, allow
           onChange={(e) => set("postCode", e.target.value)}
           placeholder="e.g. 71034"
           inputMode="numeric"
-          className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/60"
+          className="border-sidebar-border bg-sidebar-accent text-sidebar-foreground placeholder:text-sidebar-foreground/70"
         />
       </div>
     </div>
