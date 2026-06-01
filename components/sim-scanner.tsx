@@ -6,69 +6,63 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { fetcher } from "@/lib/fetcher"
 import type { IccidResult } from "@/lib/types"
+import { BrowserMultiFormatReader, NotFoundException } from "@zxing/browser"
 
 export function SimScanner() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [stream, setStream] = useState<MediaStream | null>(null)
+  const readerRef = useRef<BrowserMultiFormatReader | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
   const [scanned, setScanned] = useState<string>("")
   const [result, setResult] = useState<IccidResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [scanning, setScanning] = useState(false)
 
   useEffect(() => {
-    let interval: number | null = null
-    let detector: any
     async function startScanner() {
       if (!videoRef.current || !navigator.mediaDevices?.getUserMedia) {
         setError("Camera not available on this device.")
         return
       }
 
-      const BarcodeDetectorClass = (window as any).BarcodeDetector
-      if (!BarcodeDetectorClass) {
-        setError("Barcode detector not supported in this browser.")
-        return
-      }
-
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" },
-        })
-        setStream(stream)
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        streamRef.current = stream
         if (videoRef.current) {
           videoRef.current.srcObject = stream
           await videoRef.current.play()
         }
 
-        detector = new BarcodeDetectorClass({ formats: ["code_128", "ean_13", "ean_8", "qr_code"] })
-        interval = window.setInterval(async () => {
-          if (!videoRef.current) return
-          try {
-            const barcodes = await detector.detect(videoRef.current)
-            if (barcodes.length > 0) {
-              setScanned(barcodes[0].rawValue ?? "")
-              setScanning(false)
-            }
-          } catch {
-            // ignore intermittent scanning failures
+        readerRef.current = new BrowserMultiFormatReader()
+        readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
+          if (result) {
+            setScanned(result.getText())
+            setScanning(false)
           }
-        }, 700)
-      } catch (err) {
+          if (error && !(error instanceof NotFoundException)) {
+            console.error(error)
+          }
+        })
+      } catch {
         setError("Unable to open camera. Please allow camera access or use manual entry.")
       }
     }
 
     if (scanning) {
+      setError(null)
       startScanner()
     }
 
     return () => {
-      if (interval) window.clearInterval(interval)
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop())
+      if (readerRef.current) {
+        readerRef.current.reset()
+        readerRef.current = null
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop())
+        streamRef.current = null
       }
     }
-  }, [scanning, stream])
+  }, [scanning])
 
   async function validate(value: string) {
     setError(null)
