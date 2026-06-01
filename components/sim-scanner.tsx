@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { fetcher } from "@/lib/fetcher"
 import type { IccidResult } from "@/lib/types"
-import { BrowserMultiFormatReader, NotFoundException } from "@zxing/browser"
+import { BrowserMultiFormatReader } from "@zxing/browser"
 
 export function SimScanner() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -38,8 +38,9 @@ export function SimScanner() {
             setScanned(result.getText())
             setScanning(false)
           }
-          if (error && !(error instanceof NotFoundException)) {
-            console.error(error)
+          if (error) {
+            // Ignore all scanning errors silently - this is normal during continuous scanning
+            // Errors are expected when the camera doesn't detect a barcode
           }
         })
       } catch {
