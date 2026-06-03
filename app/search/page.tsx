@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import useSWR from "swr"
 import { ArrowLeft, ArrowRight, Search, Store } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 import { getStoredUser, type UserProfile } from "@/lib/auth"
 import { fetcher } from "@/lib/fetcher"
 import type { FilterOptions, RetailerDetail } from "@/lib/types"
@@ -24,12 +25,21 @@ interface PageFilters {
 const EMPTY_FILTERS: PageFilters = { branch: "", zone: "", city: "", postCode: "" }
 
 export default function SearchPage() {
+  const searchParams = useSearchParams()
+  const queryRetailerId = searchParams.get("q")
+  
   const [user, setUser] = useState<UserProfile | null>(null)
   const [filters, setFilters] = useState<PageFilters>(EMPTY_FILTERS)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [view, setView] = useState<"stock" | "report">("stock")
 
   const { data: options } = useSWR<FilterOptions>("/api/filters", fetcher)
+
+  useEffect(() => {
+    if (queryRetailerId) {
+      setSelectedId(queryRetailerId)
+    }
+  }, [queryRetailerId])
 
   useEffect(() => {
     const stored = getStoredUser()

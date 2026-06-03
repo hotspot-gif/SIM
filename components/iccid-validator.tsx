@@ -47,7 +47,7 @@ export function IccidValidator({ onOpenRetailer }: Props) {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && check()}
-          placeholder="Enter full ICCID e.g. 893935002000027770"
+          placeholder="Enter ICCID (Full or 11-digit short code)"
           inputMode="numeric"
           className="font-mono text-sm"
         />

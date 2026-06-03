@@ -1,22 +1,25 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { Camera, Barcode, RefreshCw, CheckCircle, XCircle, ShieldAlert } from "lucide-react"
+import { Camera, Barcode, RefreshCw, CheckCircle, XCircle, ShieldAlert, ArrowRight, ArrowLeft, Keyboard, Scan } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { fetcher } from "@/lib/fetcher"
 import type { IccidResult } from "@/lib/types"
 import { BrowserMultiFormatReader } from "@zxing/browser"
 import { formatCurrency } from "@/lib/calc"
+import { useRouter } from "next/navigation"
 
 export function SimScanner() {
+  const router = useRouter()
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const readerRef = useRef<BrowserMultiFormatReader | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const [scanned, setScanned] = useState<string>("")
   const [result, setResult] = useState<IccidResult | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [scanning, setScanning] = useState(false)
+  const [mode, setMode] = useState<"select" | "barcode" | "manual" | "result">("select")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let isActive = true
@@ -29,7 +32,6 @@ export function SimScanner() {
       }
 
       try {
-        // Request camera with minimal, widely-supported constraints
         const stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: { ideal: "environment" },
@@ -50,21 +52,15 @@ export function SimScanner() {
 
         readerRef.current = new BrowserMultiFormatReader()
         
-        // Start decoding continuously
-        await readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (result, error) => {
+        await readerRef.current.decodeFromVideoDevice(undefined, videoRef.current, (decodeResult, decodeError) => {
           if (!isActive) return
           
-          if (result && !hasDetected) {
+          if (decodeResult && !hasDetected) {
             hasDetected = true
-            const scannedValue = result.getText()
-            // Update state outside of the callback
+            const scannedValue = decodeResult.getText()
             if (scannedValue.trim()) {
               setScanned(scannedValue)
-              validateScanned(scannedValue)
-              // Allow re-scanning after a short delay
-              setTimeout(() => {
-                hasDetected = false
-              }, 2000)
+              validate(scannedValue)
             }
           }
         })
@@ -75,7 +71,7 @@ export function SimScanner() {
       }
     }
 
-    if (scanning) {
+    if (mode === "barcode") {
       isActive = true
       hasDetected = false
       setError(null)
@@ -99,149 +95,230 @@ export function SimScanner() {
         }
       } catch {}
     }
-  }, [scanning])
+  }, [mode])
 
-  const validateScanned = useCallback(async (value: string) => {
-    setError(null)
-    setResult(null)
+  const validate = async (value: string) => {
     if (!value.trim()) return
+    setLoading(true)
+    setError(null)
     try {
       const data = await fetcher(`/api/iccid?value=${encodeURIComponent(value.trim())}`)
       setResult(data)
+      setMode("result")
     } catch {
       setError("Invalid or not found ICCID. Please try another one.")
+    } finally {
+      setLoading(false)
     }
-  }, [])
-
-  async function validate(value: string) {
-    setScanned(value)
-    await validateScanned(value)
   }
 
-  return (
-    <div className="space-y-4 lg:space-y-6 rounded-2xl lg:rounded-3xl border border-border bg-card p-4 lg:p-6 shadow-sm">
-      <div className="flex flex-col gap-3">
-        <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">SIM Scan</p>
-          <h1 className="text-lg lg:text-2xl font-semibold text-foreground">Scan ICCID with mobile camera</h1>
-          <p className="mt-2 max-w-2xl text-xs lg:text-sm text-muted-foreground">
-            Use the camera scanner if available, or enter the ICCID manually. Scanned values can be validated instantly.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={() => setScanning((prev) => !prev)} className="bg-primary text-primary-foreground text-xs lg:text-sm">
-            <Camera className="mr-2 size-4" />
-            {scanning ? "Stop scan" : "Start scan"}
-          </Button>
-          <Button variant="outline" onClick={() => validate(scanned)} className="text-xs lg:text-sm">
-            <RefreshCw className="mr-2 size-4" /> Validate
-          </Button>
-        </div>
+  function reset() {
+    setScanned("")
+    setResult(null)
+    setError(null)
+    setMode("select")
+  }
+
+  if (mode === "select") {
+    return (
+      <div className="grid gap-4 sm:grid-cols-2">
+        <button
+          onClick={() => setMode("barcode")}
+          className="flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-border bg-card p-10 transition-all hover:border-accent hover:bg-accent/5 group"
+        >
+          <div className="rounded-full bg-accent/10 p-5 text-accent transition-transform group-hover:scale-110">
+            <Scan className="size-10" />
+          </div>
+          <div className="text-center">
+            <h3 className="text-lg font-bold text-foreground">Scan Barcode</h3>
+            <p className="text-sm text-muted-foreground">Use your camera to scan ICCID barcode</p>
+          </div>
+        </button>
+
+        <button
+          onClick={() => setMode("manual")}
+          className="flex flex-col items-center justify-center gap-4 rounded-3xl border-2 border-border bg-card p-10 transition-all hover:border-accent hover:bg-accent/5 group"
+        >
+          <div className="rounded-full bg-brand-purple/10 p-5 text-brand-purple transition-transform group-hover:scale-110">
+            <Keyboard className="size-10" />
+          </div>
+          <div className="text-center">
+            <h3 className="text-lg font-bold text-foreground">Manual Input</h3>
+            <p className="text-sm text-muted-foreground">Type the ICCID number manually</p>
+          </div>
+        </button>
       </div>
+    )
+  }
 
-      {error && (
-        <div className="rounded-lg lg:rounded-xl border border-destructive/30 bg-destructive/10 p-3 lg:p-4 text-xs lg:text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      <div className="grid gap-4 lg:gap-6 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4 lg:order-last">
-          <div className="rounded-xl lg:rounded-2xl border border-border bg-secondary p-3 lg:p-4">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Scanned ICCID</p>
-            <p className="mt-2 font-mono text-xs lg:text-sm text-foreground break-all">{scanned || "No code scanned yet."}</p>
-          </div>
-
-          <div className="rounded-xl lg:rounded-2xl border border-border bg-secondary p-3 lg:p-4">
-            <label className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground" htmlFor="manual-iccid">
-              Manual ICCID input
-            </label>
-            <Input
-              id="manual-iccid"
-              value={scanned}
-              onChange={(event) => setScanned(event.target.value)}
-              placeholder="Enter full ICCID"
-              inputMode="numeric"
-              className="mt-3 font-mono text-xs lg:text-sm"
-            />
+  if (mode === "result") {
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="mb-6 flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="mr-2 size-4" />
+            Back to Selection
+          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setMode(scanned ? "barcode" : "manual")}>
+              Scan Again
+            </Button>
           </div>
         </div>
 
-        <div className="space-y-4">
-          {scanning && (
-            <div className="overflow-hidden rounded-xl lg:rounded-2xl border border-border bg-black/90">
-              <video
-                ref={videoRef}
-                className="aspect-video w-full object-cover"
-                autoPlay
-                playsInline
-                muted
-                controls={false}
-              />
+        <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <div className="mb-6 flex flex-col gap-4">
+            <div className={`flex items-center gap-3 rounded-2xl px-4 py-3 ${result?.defective ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
+              {result?.defective ? (
+                <>
+                  <ShieldAlert className="size-6" />
+                  <div>
+                    <h2 className="text-lg font-bold uppercase tracking-wider">Defective SIM Detected</h2>
+                    <p className="text-sm opacity-90">* This serial number is part of defective stock</p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="size-6" />
+                  <div>
+                    <h2 className="text-lg font-bold">Valid / Not Defective</h2>
+                    <p className="text-sm opacity-90">This ICCID is not part of the known defective stock</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {result?.batch && (
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-6">
+                <div className="grid gap-4 rounded-2xl bg-secondary/50 p-6 border border-border/50">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Retailer ID</p>
+                    <p className="text-lg font-bold text-foreground">{result.batch.retailerId}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">City & Territory</p>
+                    <p className="font-medium text-foreground">{result.batch.city} - {result.batch.territory}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">SIM Profile</p>
+                    <p className="font-medium text-foreground">{result.batch.simProfile || "-"}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid gap-4 rounded-2xl bg-secondary/50 p-6 border border-border/50">
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">ICCID Range</p>
+                    <div className="font-mono text-sm">
+                      <p><span className="text-muted-foreground mr-2">From:</span> {result.batch.iccidFr}</p>
+                      <p><span className="text-muted-foreground mr-2">To:</span> {result.batch.iccidTo}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-widest text-muted-foreground">Estimated Reimbursement</p>
+                    <p className="text-2xl font-bold text-accent">{formatCurrency(result.batch.reimbursement)}</p>
+                  </div>
+                </div>
+                
+                <Button 
+                  onClick={() => router.push(`/search?q=${encodeURIComponent(result.batch!.retailerId)}`)}
+                  className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-12 text-base font-semibold"
+                >
+                  Go to Retailer Stock Details
+                  <ArrowRight className="ml-2 size-5" />
+                </Button>
+              </div>
             </div>
           )}
 
-          <div className="rounded-xl lg:rounded-2xl border border-border bg-secondary p-3 lg:p-4">
-            <div className="flex items-center gap-2 text-xs lg:text-sm font-semibold text-foreground">
-              <Barcode className="size-4 text-accent" /> Result
-            </div>
-            <div className="mt-3 space-y-3 text-xs lg:text-sm">
-              {result ? (
-                <div className="space-y-2">
-                  <div className={`flex items-center gap-2 rounded-lg lg:rounded-2xl px-3 py-2 text-xs lg:text-sm ${result.defective ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
-                    {result.defective ? (
-                      <>
-                        <ShieldAlert className="size-3 lg:size-4" />
-                        <span className="font-bold">DEFECTIVE SIM DETECTED</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="size-3 lg:size-4" />
-                        <span>Not part of defective stock</span>
-                      </>
-                    )}
-                  </div>
-                  {result.batch ? (
-                    <div className="grid gap-2 text-xs text-muted-foreground grid-cols-2 bg-background/50 p-3 rounded-xl border border-border">
-                      <div className="col-span-2 border-b border-border/50 pb-2 mb-1">
-                        <p className="font-bold text-destructive text-[10px] uppercase tracking-wider">Status: Defective Sim</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">Retailer ID</p>
-                        <p className="text-xs">{result.batch.retailerId}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">City</p>
-                        <p className="text-xs">{result.batch.city || "Unknown"}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">Range From</p>
-                        <p className="text-xs font-mono">{result.batch.iccidFr}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">Range To</p>
-                        <p className="text-xs font-mono">{result.batch.iccidTo}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">Profile</p>
-                        <p className="text-xs">{result.batch.simProfile || "-"}</p>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">Reimbursement</p>
-                        <p className="text-xs font-bold text-accent">{formatCurrency(result.batch.reimbursement)}</p>
-                      </div>
-                    </div>
-                  ) : null}
+          {!result?.batch && (
+             <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+                <div className="rounded-full bg-secondary p-5">
+                   <Barcode className="size-10 text-muted-foreground" />
                 </div>
-              ) : (
-                <div className="flex items-center gap-2 rounded-lg lg:rounded-2xl border border-dashed border-border px-3 py-4 lg:py-6 text-xs lg:text-sm text-muted-foreground">
-                  <XCircle className="size-3 lg:size-4 flex-shrink-0" />
-                  <span>No ICCID validated yet.</span>
+                <div className="space-y-1">
+                   <p className="text-lg font-medium text-foreground">Validated ICCID: <span className="font-mono">{scanned}</span></p>
+                   <p className="text-sm text-muted-foreground max-w-xs">This ICCID was validated successfully but no associated batch was found in the defective stock database.</p>
+                </div>
+                <Button variant="outline" onClick={reset}>Try Another One</Button>
+             </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="animate-in fade-in duration-300">
+      <div className="mb-6 flex items-center justify-between">
+        <Button variant="ghost" size="sm" onClick={reset} className="text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="mr-2 size-4" />
+          Back to Selection
+        </Button>
+        <div className="text-sm font-medium text-muted-foreground">
+          Mode: {mode === "barcode" ? "Barcode Scanner" : "Manual Input"}
+        </div>
+      </div>
+
+      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+        {mode === "barcode" && (
+          <div className="space-y-6">
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-black aspect-video sm:aspect-[16/9] max-w-2xl mx-auto">
+              <video
+                ref={videoRef}
+                className="h-full w-full object-cover"
+                autoPlay
+                playsInline
+                muted
+              />
+              <div className="absolute inset-0 border-2 border-accent/50 opacity-20 pointer-events-none" />
+              <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 border-t border-accent/50 opacity-40 pointer-events-none" />
+            </div>
+            
+            <div className="text-center space-y-2">
+              <p className="text-sm text-muted-foreground italic">Point your camera at the ICCID barcode on the SIM card</p>
+              {error && (
+                <div className="mx-auto max-w-md rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
+                  {error}
                 </div>
               )}
             </div>
           </div>
-        </div>
+        )}
+
+        {mode === "manual" && (
+          <div className="max-w-md mx-auto space-y-6 py-4">
+            <div className="space-y-2">
+              <label htmlFor="manual-iccid" className="text-sm font-semibold text-foreground">
+                Enter ICCID Number
+              </label>
+              <p className="text-xs text-muted-foreground">Enter full 19/18 digits or 11-digit short code</p>
+              <div className="flex gap-2">
+                <Input
+                  id="manual-iccid"
+                  value={scanned}
+                  onChange={(e) => setScanned(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && validate(scanned)}
+                  placeholder="e.g. 8939350070063429655"
+                  inputMode="numeric"
+                  className="font-mono text-base h-12"
+                  autoFocus
+                />
+                <Button 
+                  onClick={() => validate(scanned)} 
+                  disabled={loading || !scanned.trim()}
+                  className="h-12 px-6"
+                >
+                  {loading ? <RefreshCw className="size-4 animate-spin" /> : "Validate"}
+                </Button>
+              </div>
+              {error && <p className="text-sm text-destructive mt-2">{error}</p>}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
