@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import useSWR from "swr"
 import { ArrowLeft, ArrowRight, Search, Store } from "lucide-react"
 import { useSearchParams } from "next/navigation"
@@ -24,7 +24,7 @@ interface PageFilters {
 
 const EMPTY_FILTERS: PageFilters = { branch: "", zone: "", city: "", postCode: "" }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const queryRetailerId = searchParams.get("q")
   
@@ -209,5 +209,17 @@ export default function SearchPage() {
         )}
       </div>
     </AppShell>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    }>
+      <SearchContent />
+    </Suspense>
   )
 }
