@@ -257,30 +257,29 @@ export function ReportPanel({ detail }: Props) {
           Generate Report PDF
         </Button>
       </div>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            onClick={download}
-            disabled={!hasReportBatches}
-            variant="outline"
-            className="border-accent text-accent hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Download className="mr-2 size-4" />
-            Download
-          </Button>
-          <Button
-            onClick={send}
-            disabled={!detail.retailer.email || !hasReportBatches}
-            variant="outline"
-            className="border-brand-green text-success-foreground hover:bg-success hover:text-success-foreground disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Send className="mr-2 size-4" />
-            Send
-          </Button>
-        </div>
-        {!detail.retailer.email && (
-          <p className="text-[11px] text-muted-foreground">No email on file for this retailer.</p>
-        )}
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          onClick={download}
+          disabled={!hasReportBatches}
+          variant="outline"
+          className="border-accent text-accent hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Download className="mr-2 size-4" />
+          Download
+        </Button>
+        <Button
+          onClick={send}
+          disabled={!detail.retailer.email || !hasReportBatches}
+          variant="outline"
+          className="border-brand-green text-success-foreground hover:bg-success hover:text-success-foreground disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Send className="mr-2 size-4" />
+          Send
+        </Button>
       </div>
+      {!detail.retailer.email && (
+        <p className="text-[11px] text-muted-foreground">No email on file for this retailer.</p>
+      )}
 
       {previewUrl ? (
         <div className="min-h-[280px] flex-1 overflow-hidden rounded-lg border border-border">
