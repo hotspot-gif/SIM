@@ -11,11 +11,17 @@ export function StockTable({ batches }: Props) {
   const [filter, setFilter] = useState<"all" | "zero" | "aboveZero">("all")
 
   const filteredBatches = useMemo(() => {
-    return batches.filter((b) => {
-      if (filter === "zero") return b.faceValue === 0
-      if (filter === "aboveZero") return b.faceValue > 0
-      return true
-    })
+    return batches
+      .filter((b) => {
+        if (filter === "zero") return b.faceValue === 0
+        if (filter === "aboveZero") return b.faceValue > 0
+        return true
+      })
+      .sort((a, b) => {
+        const dateA = a.authDate ? new Date(a.authDate).getTime() : 0
+        const dateB = b.authDate ? new Date(b.authDate).getTime() : 0
+        return dateA - dateB
+      })
   }, [batches, filter])
 
   return (

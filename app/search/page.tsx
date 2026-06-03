@@ -78,7 +78,7 @@ function SearchContent() {
   }
 
   return (
-    <AppShell title="Search SIM">
+    <AppShell title="Search by Retailer or ICCID">
       <div className="mx-auto flex max-w-[800px] flex-col gap-6">
         {!selectedId ? (
           <>
