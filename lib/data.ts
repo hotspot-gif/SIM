@@ -300,6 +300,9 @@ export function validateIccid(raw: string): IccidResult {
   } else if (iccid.length === 18 && iccid.startsWith(prefix)) {
     // 18 digits: remove prefix
     normalized = iccid.slice(prefix.length)
+  } else if (iccid.length === 12) {
+    // 12 digits: ignore the last digit and use 11 digits
+    normalized = iccid.slice(0, 11)
   } else if (iccid.length === 11) {
     // 11 digits: use as is
     normalized = iccid
