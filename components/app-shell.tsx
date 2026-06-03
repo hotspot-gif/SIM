@@ -57,13 +57,13 @@ export function AppShell({ title, children, onSignOut }: Props) {
       <div className="flex min-h-screen flex-col lg:flex-row">
         {/* Mobile header with menu button */}
         <div className="flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 lg:hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-hidden">
             <img 
               src="https://cms-assets.ldsvcplatform.com/IT/s3fs-public/2023-09/MicrosoftTeams-image%20%2813%29.png" 
               alt="Logo" 
-              className="h-6 w-auto"
+              className="h-6 w-auto flex-shrink-0 object-contain"
             />
-            <h2 className="text-sm font-bold text-sidebar-foreground">Italy SIM Return</h2>
+            <h2 className="text-sm font-bold text-sidebar-foreground truncate">Italy SIM Return</h2>
           </div>
           <Button
             variant="ghost"
@@ -92,23 +92,23 @@ export function AppShell({ title, children, onSignOut }: Props) {
           {/* Header */}
           <div className="border-b border-sidebar-border p-4 flex items-center justify-between hidden lg:flex">
             {isExpanded ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 overflow-hidden">
                 <img 
                   src="https://cms-assets.ldsvcplatform.com/IT/s3fs-public/2023-09/MicrosoftTeams-image%20%2813%29.png" 
                   alt="Logo" 
-                  className="h-8 w-auto"
+                  className="h-8 w-auto flex-shrink-0 object-contain"
                 />
-                <div>
-                  <p className="text-xs uppercase tracking-widest text-sidebar-foreground/70">SIM Dashboard</p>
-                  <h2 className="text-sm font-bold text-sidebar-foreground">Italy SIM Return</h2>
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-widest text-sidebar-foreground/70 truncate">SIM Dashboard</p>
+                  <h2 className="text-sm font-bold text-sidebar-foreground truncate">Italy SIM Return</h2>
                 </div>
               </div>
             ) : (
-              <div className="w-full flex justify-center">
+              <div className="w-full flex justify-center overflow-hidden">
                 <img 
                   src="https://cms-assets.ldsvcplatform.com/IT/s3fs-public/2023-09/MicrosoftTeams-image%20%2813%29.png" 
                   alt="Logo" 
-                  className="h-8 w-auto"
+                  className="h-8 w-8 flex-shrink-0 object-contain"
                 />
               </div>
             )}

@@ -18,8 +18,10 @@ export function SummaryCards({ summary }: Props) {
     },
     {
       label: "Total Face Value",
-      value: formatCurrency(summary.totalFaceValue),
-      hint: "Sum of batch face values",
+      value: summary.distinctFaceValues.length > 0 
+        ? summary.distinctFaceValues.map(v => formatCurrency(v)).join(", ")
+        : "€0,00",
+      hint: "Distinct face value types",
       icon: Coins,
       accent: "bg-brand-purple",
     },

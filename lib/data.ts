@@ -265,10 +265,21 @@ export function getRetailerDetail(retailerId: string): RetailerDetail | null {
       acc.totalDiscount += b.discount
       acc.netReimbursement += b.reimbursement
       acc.batchCount += 1
+      if (!acc.distinctFaceValues.includes(b.faceValue)) {
+        acc.distinctFaceValues.push(b.faceValue)
+      }
       return acc
     },
-    { totalQty: 0, totalFaceValue: 0, totalDiscount: 0, netReimbursement: 0, batchCount: 0 },
+    {
+      totalQty: 0,
+      totalFaceValue: 0,
+      totalDiscount: 0,
+      netReimbursement: 0,
+      batchCount: 0,
+      distinctFaceValues: [],
+    },
   )
+  summary.distinctFaceValues.sort((a, b) => a - b)
   summary.netReimbursement = Math.round(summary.netReimbursement * 100) / 100
 
   return { retailer, batches: unique, summary }

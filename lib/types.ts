@@ -53,6 +53,7 @@ export interface StockSummary {
   totalDiscount: number
   netReimbursement: number
   batchCount: number
+  distinctFaceValues: number[]
 }
 
 export interface RetailerDetail {
