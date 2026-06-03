@@ -79,7 +79,7 @@ export function DashboardOverview({ overview, user }: Props) {
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[340px_1fr]">
+    <section className="flex flex-col gap-4">
       <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
         <h2 className="text-sm font-semibold text-foreground">Account summary</h2>
         <p className="mt-3 text-sm text-muted-foreground">
