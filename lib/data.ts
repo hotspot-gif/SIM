@@ -279,23 +279,52 @@ export function validateIccid(raw: string): IccidResult {
   const result: IccidResult = { iccid, defective: false, batch: null }
   if (!/^\d+$/.test(iccid)) return result
 
+  // Normalize ICCID to 11 digits
+  let normalized = iccid
+  const prefix = "8939350"
+
+  if (iccid.length === 19 && iccid.startsWith(prefix)) {
+    // 19 digits: remove prefix and last digit
+    normalized = iccid.slice(prefix.length, -1)
+  } else if (iccid.length === 18 && iccid.startsWith(prefix)) {
+    // 18 digits: remove prefix
+    normalized = iccid.slice(prefix.length)
+  } else if (iccid.length === 11) {
+    // 11 digits: use as is
+    normalized = iccid
+  } else {
+    // If it doesn't match expected lengths, it might still be a short code or something else
+    // but for now we follow the rules provided.
+  }
+
   const { batches } = load()
   let target: bigint
   try {
-    target = BigInt(iccid)
+    target = BigInt(normalized)
   } catch {
     return result
   }
 
   for (const b of batches) {
-    if (!/^\d+$/.test(b.iccidStart) || !/^\d+$/.test(b.iccidEnd)) continue
-    const start = BigInt(b.iccidStart)
-    const end = BigInt(b.iccidEnd)
-    if (target >= start && target <= end) {
-      // All batches in this dataset are defective/old stock
-      result.defective = true
-      result.batch = b
-      return result
+    if (!b.iccidFr || !b.iccidTo) continue
+    
+    // Clean ranges to ensure they are numeric for comparison
+    const frClean = b.iccidFr.replace(/\D/g, "")
+    const toClean = b.iccidTo.replace(/\D/g, "")
+    
+    if (!frClean || !toClean) continue
+
+    try {
+      const start = BigInt(frClean)
+      const end = BigInt(toClean)
+      
+      if (target >= start && target <= end) {
+        result.defective = true
+        result.batch = b
+        return result
+      }
+    } catch {
+      continue
     }
   }
   return result

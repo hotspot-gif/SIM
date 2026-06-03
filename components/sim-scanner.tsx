@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { Camera, Barcode, RefreshCw, CheckCircle, XCircle } from "lucide-react"
+import { Camera, Barcode, RefreshCw, CheckCircle, XCircle, ShieldAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { fetcher } from "@/lib/fetcher"
 import type { IccidResult } from "@/lib/types"
 import { BrowserMultiFormatReader } from "@zxing/browser"
+import { formatCurrency } from "@/lib/calc"
 
 export function SimScanner() {
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -187,14 +188,26 @@ export function SimScanner() {
             <div className="mt-3 space-y-3 text-xs lg:text-sm">
               {result ? (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 rounded-lg lg:rounded-2xl bg-background px-3 py-2 text-xs lg:text-sm">
-                    <CheckCircle className="size-3 lg:size-4 text-success" />
-                    <span>{result.defective ? "Defective stock detected" : "Not defective"}</span>
+                  <div className={`flex items-center gap-2 rounded-lg lg:rounded-2xl px-3 py-2 text-xs lg:text-sm ${result.defective ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"}`}>
+                    {result.defective ? (
+                      <>
+                        <ShieldAlert className="size-3 lg:size-4" />
+                        <span className="font-bold">DEFECTIVE SIM DETECTED</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle className="size-3 lg:size-4" />
+                        <span>Not part of defective stock</span>
+                      </>
+                    )}
                   </div>
                   {result.batch ? (
-                    <div className="grid gap-2 text-xs text-muted-foreground grid-cols-2">
+                    <div className="grid gap-2 text-xs text-muted-foreground grid-cols-2 bg-background/50 p-3 rounded-xl border border-border">
+                      <div className="col-span-2 border-b border-border/50 pb-2 mb-1">
+                        <p className="font-bold text-destructive text-[10px] uppercase tracking-wider">Status: Defective Sim</p>
+                      </div>
                       <div>
-                        <p className="font-semibold text-foreground text-xs">Retailer</p>
+                        <p className="font-semibold text-foreground text-xs">Retailer ID</p>
                         <p className="text-xs">{result.batch.retailerId}</p>
                       </div>
                       <div>
@@ -202,12 +215,20 @@ export function SimScanner() {
                         <p className="text-xs">{result.batch.city || "Unknown"}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground text-xs">Range</p>
-                        <p className="text-xs">{result.batch.iccidFr}-{result.batch.iccidTo}</p>
+                        <p className="font-semibold text-foreground text-xs">Range From</p>
+                        <p className="text-xs font-mono">{result.batch.iccidFr}</p>
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground text-xs">Qty</p>
-                        <p className="text-xs">{result.batch.qty}</p>
+                        <p className="font-semibold text-foreground text-xs">Range To</p>
+                        <p className="text-xs font-mono">{result.batch.iccidTo}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-xs">Profile</p>
+                        <p className="text-xs">{result.batch.simProfile || "-"}</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground text-xs">Reimbursement</p>
+                        <p className="text-xs font-bold text-accent">{formatCurrency(result.batch.reimbursement)}</p>
                       </div>
                     </div>
                   ) : null}

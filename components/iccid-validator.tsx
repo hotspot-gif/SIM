@@ -64,9 +64,12 @@ export function IccidValidator({ onOpenRetailer }: Props) {
             <ShieldAlert className="size-4" />
             <span className="text-sm font-bold">DEFECTIVE SIM</span>
           </div>
+          <div className="text-[11px] font-medium text-destructive/80 mb-1">
+            * This serial number is part of defective stock
+          </div>
           <dl className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-foreground">
             <div className="col-span-2 flex justify-between">
-              <dt className="text-muted-foreground">Retailer</dt>
+              <dt className="text-muted-foreground">Retailer ID</dt>
               <dd className="font-semibold">{result.batch.retailerId}</dd>
             </div>
             <div className="flex justify-between">
@@ -74,12 +77,20 @@ export function IccidValidator({ onOpenRetailer }: Props) {
               <dd>{result.batch.city || "-"}</dd>
             </div>
             <div className="flex justify-between">
+              <dt className="text-muted-foreground">Zone</dt>
+              <dd>{result.batch.territory || "-"}</dd>
+            </div>
+            <div className="flex justify-between">
               <dt className="text-muted-foreground">Profile</dt>
               <dd>{result.batch.simProfile || "-"}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-muted-foreground">Batch Range</dt>
-              <dd className="font-mono">{result.batch.iccidFr}-{result.batch.iccidTo}</dd>
+              <dt className="text-muted-foreground">Range From</dt>
+              <dd className="font-mono">{result.batch.iccidFr}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-muted-foreground">Range To</dt>
+              <dd className="font-mono">{result.batch.iccidTo}</dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Reimb.</dt>
