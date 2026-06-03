@@ -79,7 +79,21 @@ export function DashboardOverview({ overview, user }: Props) {
   }
 
   return (
-    <section className="grid gap-4 xl:grid-cols-[1fr_340px]">
+    <section className="grid gap-4 xl:grid-cols-[340px_1fr]">
+      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-foreground">Account summary</h2>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {user.displayRole} – {user.email}
+        </p>
+        <div className="mt-4 space-y-2 text-sm text-foreground">
+          <p>
+            Access scope: <span className="font-semibold">{user.allowedBranches.length} branch(es)</span>,{' '}
+            <span className="font-semibold">{user.allowedZones.length} zone(s)</span>
+          </p>
+          {user.regionLabel && <p>Region: {user.regionLabel}</p>}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
         {cards(overview).map((card) => (
           <div key={card.label} className="rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -95,20 +109,6 @@ export function DashboardOverview({ overview, user }: Props) {
             <p className="mt-3 text-xs text-muted-foreground">{card.hint}</p>
           </div>
         ))}
-      </div>
-
-      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-foreground">Account summary</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          {user.displayRole} – {user.email}
-        </p>
-        <div className="mt-4 space-y-2 text-sm text-foreground">
-          <p>
-            Access scope: <span className="font-semibold">{user.allowedBranches.length} branch(es)</span>,{' '}
-            <span className="font-semibold">{user.allowedZones.length} zone(s)</span>
-          </p>
-          {user.regionLabel && <p>Region: {user.regionLabel}</p>}
-        </div>
       </div>
     </section>
   )

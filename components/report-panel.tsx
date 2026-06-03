@@ -154,24 +154,6 @@ export function ReportPanel({ detail }: Props) {
           </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 pb-3 border-t border-border/50 pt-3">
-          <span className="font-medium text-foreground">Report Language:</span>
-          <button
-            type="button"
-            onClick={() => setLanguage("en")}
-            className={`rounded-full border px-3 py-1 text-[11px] ${language === "en" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
-          >
-            English
-          </button>
-          <button
-            type="button"
-            onClick={() => setLanguage("it")}
-            className={`rounded-full border px-3 py-1 text-[11px] ${language === "it" ? "border-accent bg-accent/10 text-accent" : "border-border bg-background text-muted-foreground"}`}
-          >
-            Italiano
-          </button>
-        </div>
-
         <div className="flex justify-between py-0.5">
           <span className="text-muted-foreground">Retailer</span>
           <span className="font-semibold text-foreground">{detail.retailer.retailerId}</span>
@@ -243,11 +225,38 @@ export function ReportPanel({ detail }: Props) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Button onClick={generate} disabled={!hasReportBatches} className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
+      <div className="flex flex-col gap-3 rounded-lg border border-border/50 bg-secondary/30 p-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mr-2">PDF Report Language:</span>
+          <button
+            type="button"
+            onClick={() => setLanguage("en")}
+            className={`rounded-full border px-3 py-1 text-[11px] font-medium transition-colors ${
+              language === "en"
+                ? "border-accent bg-accent/10 text-accent"
+                : "border-border bg-background text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            English
+          </button>
+          <button
+            type="button"
+            onClick={() => setLanguage("it")}
+            className={`rounded-full border px-3 py-1 text-[11px] font-medium transition-colors ${
+              language === "it"
+                ? "border-accent bg-accent/10 text-accent"
+                : "border-border bg-background text-muted-foreground hover:bg-secondary"
+            }`}
+          >
+            Italiano
+          </button>
+        </div>
+
+        <Button onClick={generate} disabled={!hasReportBatches} className="w-full bg-primary text-primary-foreground hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50">
           <FileCheck className="mr-2 size-4" />
           Generate Report PDF
         </Button>
+      </div>
         <div className="grid grid-cols-2 gap-2">
           <Button
             onClick={download}

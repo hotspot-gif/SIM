@@ -11,7 +11,7 @@ import { getSidebarCollapsed, setSidebarCollapsed } from "@/lib/store"
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home },
-  { href: "/search", label: "Search SIM", icon: Search },
+  { href: "/search", label: "Search by Retailer or ICCID", icon: Search },
   { href: "/sim-scan", label: "SIM Scan", icon: Barcode },
 ]
 
@@ -57,7 +57,7 @@ export function AppShell({ title, children, onSignOut }: Props) {
       <div className="flex min-h-screen flex-col lg:flex-row">
         {/* Mobile header with menu button */}
         <div className="flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 lg:hidden">
-          <h2 className="text-sm font-bold text-sidebar-foreground">Field Ops</h2>
+          <h2 className="text-sm font-bold text-sidebar-foreground">Italy SIM Return</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -87,7 +87,7 @@ export function AppShell({ title, children, onSignOut }: Props) {
             {isExpanded ? (
               <div>
                 <p className="text-xs uppercase tracking-widest text-sidebar-foreground/70">SIM Dashboard</p>
-                <h2 className="text-sm font-bold text-sidebar-foreground">Field Ops</h2>
+                <h2 className="text-sm font-bold text-sidebar-foreground">Italy SIM Return</h2>
               </div>
             ) : (
               <div className="w-full flex justify-center">
