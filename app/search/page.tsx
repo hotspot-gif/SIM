@@ -2,7 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import useSWR from "swr"
-import { ArrowLeft, ArrowRight, Search, Store } from "lucide-react"
+import { ArrowLeft, ArrowRight, Search, Store, MapPin, Mail, Phone } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import { getStoredUser, type UserProfile } from "@/lib/auth"
 import { fetcher } from "@/lib/fetcher"
@@ -14,6 +14,7 @@ import { FilterPanel, type Filters } from "@/components/filter-panel"
 import { IccidValidator } from "@/components/iccid-validator"
 import { ReportPanel } from "@/components/report-panel"
 import { Button } from "@/components/ui/button"
+import { SummaryCards } from "@/components/summary-cards"
 
 interface PageFilters {
   branch: string
@@ -152,27 +153,37 @@ function SearchContent() {
               <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {view === "stock" ? (
                   <div className="space-y-6">
-                    <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="p-2 rounded-lg bg-accent/10">
-                          <Store className="size-5 text-accent" />
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Retailer</p>
-                          <h2 className="text-xl font-bold text-foreground">{detail.retailer.retailerId}</h2>
-                        </div>
+                    <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-6 shadow-sm">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Store className="size-5 text-accent" />
+                        <h2 className="text-lg font-bold text-foreground">{detail.retailer.retailerId}</h2>
+                        <span className="rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                          {detail.retailer.territory || "No zone"}
+                        </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">City</p>
-                          <p className="font-medium">{detail.retailer.city || "N/A"}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-muted-foreground">Territory</p>
-                          <p className="font-medium">{detail.retailer.territory || "N/A"}</p>
-                        </div>
+                      <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1.5">
+                          <MapPin className="size-3.5" />
+                          {detail.retailer.city || "Unknown"}
+                          {detail.retailer.postCode && ` - ${detail.retailer.postCode}`}
+                        </span>
+                        {detail.retailer.email && (
+                          <span className="flex items-center gap-1.5">
+                            <Mail className="size-3.5" />
+                            {detail.retailer.email}
+                          </span>
+                        )}
+                        {detail.retailer.phone && (
+                          <span className="flex items-center gap-1.5">
+                            <Phone className="size-3.5" />
+                            {detail.retailer.phone}
+                          </span>
+                        )}
                       </div>
                     </div>
+
+                    <SummaryCards summary={detail.summary} />
+                    
                     <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                       <StockTable batches={detail.batches} />
                     </div>
